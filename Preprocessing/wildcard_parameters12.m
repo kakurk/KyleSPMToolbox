@@ -1,22 +1,42 @@
-function matlabbatch=wildcard_parameters12(runs,subjectid,wildcards,directories)
+function matlabbatch = wildcard_parameters12(runs, subjectid, wildcards, directories)
+% wildcard_parameters12     a function for setting SPM preprocessing
+%                           parameters, designed to work with 
+%                           wilcard_preprocess. This pipeline is a custom 
+%                           pipeline designed by me.
+%                           Kyle Kurkela, kyleakurkela@gmail.com
+%
+%   matlabbatch = wildcard_parameters12(runs, subjectid, wildcard, directories)
+% 
+%
+% See also: wildcard_preprocess, wildcard_parameters8
+
+
 %% Defining Session Specific Parmeters
+% In this section, the routine is defining SPM settings that are specific
+% to each functional run. They include:
+%
+% 1.) The cell string of the volumes for that run
+% 2.) The dependency from realighnment --> slicetiming
+% 3.) The dependency from slicetiming --> normalization
+
 %#ok<*AGROW>
 for crun = 1:length(runs) % for each run entered into this function..
     
-    crun_folder = strcat(directories.func,filesep,subjectid,filesep,runs{crun}); % path to the current run folder
+    crun_folder  = fullfile(directories.func, subjectid, runs{crun}); % path to the current run folder
 
-    images{crun} = cellstr(spm_select('ExtFPList',crun_folder,wildcards.func,Inf)); % collect paths to ALL .nii images in this folder
-    
-    matlabbatch{1}.spm.spatial.realign.estwrite.data = images; % Paths to all images to realign for this run
-    
+    images{crun} = cellstr(spm_select('ExtFPList', crun_folder, wildcards.func, Inf)); % collect paths to ALL .nii images in this folder
+        
     matlabbatch{2}.spm.temporal.st.scans{crun}(1) = cfg_dep(['Realign: Estimate & Reslice: Resliced Images (Sess ' num2str(crun) ')'], substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','sess', '()',{crun}, '.','cfiles'));
 
     matlabbatch{5}.spm.spatial.normalise.write.subj.resample(crun) = cfg_dep(['Slice Timing: Slice Timing Corr. Images (Sess ' num2str(crun) ')'], substruct('.','val', '{}',{2}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('()',{crun}, '.','files'));
 
 end
 
+matlabbatch{1}.spm.spatial.realign.estwrite.data = images; % Paths to all images to realign for this run
+
+
 %% Defining Session Independent Parameters
-% These parameters are run independent. They are set for all runs in GLAMM
+% These parameters are run independent
 
 % Run Independent Realightment Parameters
 matlabbatch{1}.spm.spatial.realign.estwrite.eoptions.quality = 0.9;
@@ -52,7 +72,8 @@ matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).src_exbranch = substruct('.','v
 matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).src_output   = substruct('.','rmean');
 
 % Inputting Subject's Anatomical Information
-matlabbatch{3}.spm.spatial.coreg.estimate.source = '<UNDEFINED>'; % path to anatomical image
+anat_directory = fullfile(directories.anat, subjectid); % path to this subjects anatomical folder
+matlabbatch{3}.spm.spatial.coreg.estimate.source = {spm_select('ExtFPList', anat_directory, wildcards.anat)}; % path to anatomical image
 
 % More Run Independent Coregistartion Parameters
 matlabbatch{3}.spm.spatial.coreg.estimate.ref(1) = cfg_dep('Realign: Estimate & Reslice: Mean Image', substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','rmean'));
@@ -63,31 +84,34 @@ matlabbatch{3}.spm.spatial.coreg.estimate.eoptions.tol      = [0.02 0.02 0.02 0.
 matlabbatch{3}.spm.spatial.coreg.estimate.eoptions.fwhm     = [7 7];
 
 % Run Indepednet Segmentation Parameters
+
+spm_segment_image = which('TPM.nii'); % find the TPM image on the MATLAB search path
+
 matlabbatch{4}.spm.spatial.preproc.channel.vols(1)  = cfg_dep('Coregister: Estimate: Coregistered Images', substruct('.','val', '{}',{3}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','cfiles'));
 matlabbatch{4}.spm.spatial.preproc.channel.biasreg  = 0.001;
 matlabbatch{4}.spm.spatial.preproc.channel.biasfwhm = 60;
 matlabbatch{4}.spm.spatial.preproc.channel.write    = [0 0];
-matlabbatch{4}.spm.spatial.preproc.tissue(1).tpm    = {'s:\nad12\spm12\tpm\TPM.nii,1'};
+matlabbatch{4}.spm.spatial.preproc.tissue(1).tpm    = {[spm_segment_image ',1']};
 matlabbatch{4}.spm.spatial.preproc.tissue(1).ngaus  = 1;
 matlabbatch{4}.spm.spatial.preproc.tissue(1).native = [1 0];
 matlabbatch{4}.spm.spatial.preproc.tissue(1).warped = [0 0];
-matlabbatch{4}.spm.spatial.preproc.tissue(2).tpm    = {'s:\nad12\spm12\tpm\TPM.nii,2'};
+matlabbatch{4}.spm.spatial.preproc.tissue(2).tpm    = {[spm_segment_image ',2']};
 matlabbatch{4}.spm.spatial.preproc.tissue(2).ngaus  = 1;
 matlabbatch{4}.spm.spatial.preproc.tissue(2).native = [1 0];
 matlabbatch{4}.spm.spatial.preproc.tissue(2).warped = [0 0];
-matlabbatch{4}.spm.spatial.preproc.tissue(3).tpm    = {'s:\nad12\spm12\tpm\TPM.nii,3'};
+matlabbatch{4}.spm.spatial.preproc.tissue(3).tpm    = {[spm_segment_image ',3']};
 matlabbatch{4}.spm.spatial.preproc.tissue(3).ngaus  = 2;
 matlabbatch{4}.spm.spatial.preproc.tissue(3).native = [1 0];
 matlabbatch{4}.spm.spatial.preproc.tissue(3).warped = [0 0];
-matlabbatch{4}.spm.spatial.preproc.tissue(4).tpm    = {'s:\nad12\spm12\tpm\TPM.nii,4'};
+matlabbatch{4}.spm.spatial.preproc.tissue(4).tpm    = {[spm_segment_image ',4']};
 matlabbatch{4}.spm.spatial.preproc.tissue(4).ngaus  = 3;
 matlabbatch{4}.spm.spatial.preproc.tissue(4).native = [1 0];
 matlabbatch{4}.spm.spatial.preproc.tissue(4).warped = [0 0];
-matlabbatch{4}.spm.spatial.preproc.tissue(5).tpm    = {'s:\nad12\spm12\tpm\TPM.nii,5'};
+matlabbatch{4}.spm.spatial.preproc.tissue(5).tpm    = {[spm_segment_image ',5']};
 matlabbatch{4}.spm.spatial.preproc.tissue(5).ngaus  = 4;
 matlabbatch{4}.spm.spatial.preproc.tissue(5).native = [1 0];
 matlabbatch{4}.spm.spatial.preproc.tissue(5).warped = [0 0];
-matlabbatch{4}.spm.spatial.preproc.tissue(6).tpm    = {'s:\nad12\spm12\tpm\TPM.nii,6'};
+matlabbatch{4}.spm.spatial.preproc.tissue(6).tpm    = {[spm_segment_image ',6']};
 matlabbatch{4}.spm.spatial.preproc.tissue(6).ngaus  = 2;
 matlabbatch{4}.spm.spatial.preproc.tissue(6).native = [0 0];
 matlabbatch{4}.spm.spatial.preproc.tissue(6).warped = [0 0];
