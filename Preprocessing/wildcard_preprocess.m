@@ -1,7 +1,7 @@
 function wildcard_preprocess()
 % wildcard_preprocess   a function designed to preprocess a group of
 %                       subjects using a custom designed preprocessing 
-%                       routine in SPM12
+%                       routine in SPM12 or SPM8
 %
 % This script is designed to batch multiple subjects through a preprocessing
 % pipeline designed to collect ALL AVAIABLE FUNCTIONAL RUNS USING WILDCARDS,
@@ -32,8 +32,8 @@ flag     = 2;
 % Please specify a regular expression (google regular expressions) that
 % will select only the the raw image functional series and the raw
 % anatomical image respectively.
-regularexpr.func = '^run\w*\.nii';
-regularexpr.anat = '^T1\w*\.nii';
+regularexpr.func = '^run.*\.img'; % \.nii
+regularexpr.anat = '^T1.*\.img';  % \.nii
 wildcards.runs   = 'run*';
 
 % User Input 4: Directories
