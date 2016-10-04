@@ -2,8 +2,8 @@
 
 % Specify paths to relevant directories.
 analysis_dir = 's:\nad12\STUDYNAME\analyses\ANALYSISNAME';  % where ever we are pulling from
-gPPI_dir = 's:\nad12\STUDYNAME\analyses\GPPIFOLDERNAME';    % where ever we are outputting to
-script_dir = 's:\nad12\STUDYNAME\scripts\gPPI\';            % where ever this script is located
+gPPI_dir     = 's:\nad12\STUDYNAME\analyses\GPPIFOLDERNAME';    % where ever we are outputting to
+script_dir   = 's:\nad12\STUDYNAME\scripts\gPPI\';            % where ever this script is located
 
 % Specify all subjects to run
 subjects = { '001' '002' '003' '004' '005' };

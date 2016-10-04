@@ -1,9 +1,15 @@
-function [] = parameters(subject,VOI_name,VOI_XYZ,VOI_size,gPPI_dir,analysis_dir)
+function parameters(subject,VOI_name,VOI_XYZ,VOI_size,gPPI_dir,analysis_dir)
+% parameters    function designed to work with wrapper script.
+%
+%   parameters(subject, VOI_name, VOI_XYZ, VOI_size, gPPI_dir, analysis_dir)
+%
+% See also: wrapper
+
 %% Create a VOI mask
 % Go to this subjects gPPI directory. If the mask exists, move on. If the
 % masks does not exist, create it.
 
-cd([gPPI_dir filesep subject])           % Change present working directory to this subjects gPPI dir
+cd(fullfile(gPPI_dir, subject))          % Change present working directory to this subjects gPPI dir
 if exist([VOI_name '_mask.nii'], 'file') % if there is already a VOI image for this person, move on
 else                                     % if not...
     create_sphere_image('SPM.mat',VOI_XYZ,{VOI_name},VOI_size) % create sphere around seed and save it in this subjects gPPI dir
@@ -16,7 +22,7 @@ end
 % regressor names. For example, if the first level model has
 % "Run1_TRIALTYPE" and "Run2_TRIALTYPE". See WIKI for further explanation.
 
-first_level_dir = [analysis_dir filesep subject];                       % Path to subjects GLM analysis dir                                                    % Go to the this subject's first level directory
+first_level_dir = fullfile(analysis_dir, subject);                      % Path to subjects GLM analysis dir
 load(fullfile(first_level_dir,'SPM.mat'))                               % Load this subject's SPM parameters
 for k = 1:length(SPM.Sess) %#ok<NODEF>                                  % for each Session...
     for u = 1:length(SPM.Sess(k).U)                                     % for each Trial Type in Session k...
@@ -37,14 +43,14 @@ save('SPM.mat','SPM') % Save the SPM parameters loaded above to a file called "S
 
 P.subject       = subject; % A string with the subjects id
 P.directory     = first_level_dir; % path to the first level GLM directory
-P.VOI           = [gPPI_dir filesep subject filesep VOI_name '_mask.nii']; % path to the ROI image, created above
+P.VOI           = fullfile(gPPI_dir, subject, [VOI_name '_mask.nii']); % path to the ROI image, created above
 P.Region        = VOI_name; % string, basename of output folder
 P.Estimate      = 1; % Yes, estimate this gPPI model
 P.contrast      = 0; % contrast to adjust for. Default is zero for no adjustment
 P.extract       = 'eig'; % method for ROI extraction. Default is eigenvariate
 P.Tasks         = ['0' {'TASKNAME1' 'TASKNAME2'}]; % Specify the tasks for this analysis. Think of these as trial types. Zero means "does not have to occur in every session"
 P.Weights       = []; % Weights for each task. If you want to weight one more than another. Default is not to weight when left blank
-P.maskdir       = [gPPI_dir filesep subject]; % Where should we save the masks?
+P.maskdir       = fullfile(gPPI_dir, subject); % Where should we save the masks?
 P.equalroi      = 1; % When 1, All ROI's must be of equal size. When 0, all ROIs do not have to be of equal size
 P.FLmask        = 0; % restrict the ROI's by the first level mask. This is useful when ROI is close to the edge of the brain
 P.VOI2          = {}; % specifiy a second ROI. Only used for "physiophysiological interaction"
@@ -52,7 +58,7 @@ P.analysis      = 'psy'; % for "psychophysiological interaction"
 P.method        = 'cond'; % "cond" for gPPI and "trad" for traditional PPI
 P.CompContrasts = 1; % 1 to estimate contrasts
 P.Weighted      = 0; % Weight tasks by number of trials. Default is 0 for do not weight
-P.outdir        = [gPPI_dir filesep subject]; % Output directory
+P.outdir        = fullfile(gPPI_dir, subject); % Output directory
 P.ConcatR       = 1; % Tells gPPI toolbox to concatenate runs
 
 P.Contrasts(1).left      = {'TASKNAME1'}; % left side or positive side of contrast
