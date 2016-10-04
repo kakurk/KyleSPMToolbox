@@ -1,4 +1,15 @@
-function matlabbatch=wildcard_parameters8(runs,subjectid,wildcards,directories)
+function matlabbatch=wildcard_parameters8(runs, subjectid, wildcards, directories)
+% wildcard_parameters8      a function for setting SPM preprocessing
+%                           parameters, designed to work with 
+%                           wilcard_preprocess. This pipeline is a custom 
+%                           pipeline designed by me.
+%                           Kyle Kurkela, kyleakurkela@gmail.com
+%
+%   matlabbatch = wildcard_parameters8(runs, subjectid, wildcards, directories)
+% 
+%
+% See also: wildcard_preprocess, wildcard_parameters12
+
 %% Defining Session Specific Parmeters
  %#ok<*AGROW> 
  
@@ -6,10 +17,7 @@ for crun = 1:length(runs) % for each run entered into this function..
     
     crun_folder = fullfile(directories.func,subjectid,runs{crun}); % path to the current run folder
     
-    images{crun} = cellstr(spm_select('ExtFPList',crun_folder,wildcards.func,Inf));% collect paths to ALL .nii images in this folder
-
-    
-    matlabbatch{1}.spm.spatial.realign.estwrite.data = images; % Paths to all images to realign for this run
+    images{crun} = cellstr(spm_select('ExtFPList', crun_folder, wildcards.func, Inf)); % collect paths to ALL .nii images in this folder
     
     matlabbatch{2}.spm.temporal.st.scans{crun}(1) = cfg_dep;
     matlabbatch{2}.spm.temporal.st.scans{crun}(1).tname = 'Session';
@@ -32,6 +40,9 @@ for crun = 1:length(runs) % for each run entered into this function..
     matlabbatch{5}.spm.spatial.normalise.write.subj.resample(crun).src_output = substruct('()',{crun}, '.','files');
 
 end
+
+matlabbatch{1}.spm.spatial.realign.estwrite.data = images; % Paths to all images to realign for this run
+
 
 %% Defining Session Independent Parameters
 % These parameters are run independent. They are set for all runs in GLAMM
@@ -70,8 +81,8 @@ matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).src_exbranch = substruct('.','v
 matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).src_output = substruct('.','rmean');
 
 % Inputting Subject's Anatomical Information
-anat_directory    = sprintf('/gpfs/group/s/sleic/nad12/GLAMM/anat/%s',subjectid); % path to this subjects anatomical folder
-matlabbatch{3}.spm.spatial.coreg.estwrite.source = cellstr(spm_select('ExtFPList',anat_directory,wildcards.anat,Inf)); % path to anatomical image
+anat_directory = fullfile(directories.anat, subjectid); % path to this subjects anatomical folder
+matlabbatch{3}.spm.spatial.coreg.estwrite.source = {spm_select('ExtFPList', anat_directory, wildcards.anat, Inf)}; % path to anatomical image
 
 % More Run Independent Coregistartion Parameters
 matlabbatch{3}.spm.spatial.coreg.estwrite.other = {''};
@@ -84,7 +95,10 @@ matlabbatch{3}.spm.spatial.coreg.estwrite.roptions.wrap = [0 0 0];
 matlabbatch{3}.spm.spatial.coreg.estwrite.roptions.mask = 0;
 matlabbatch{3}.spm.spatial.coreg.estwrite.roptions.prefix = 'r';
 
-% Run Indepednet Segmentation Parameters
+% Run Indpendent Segmentation Parameters
+spm_startup        = which('spm'); % find where SPM is
+[spmpathstr, ~, ~] = fileparts(spm_startup);
+
 matlabbatch{4}.spm.spatial.preproc.data(1) = cfg_dep;
 matlabbatch{4}.spm.spatial.preproc.data(1).tname = 'Data';
 matlabbatch{4}.spm.spatial.preproc.data(1).tgt_spec{1}(1).name = 'filter';
@@ -94,27 +108,27 @@ matlabbatch{4}.spm.spatial.preproc.data(1).tgt_spec{1}(2).value = 'e';
 matlabbatch{4}.spm.spatial.preproc.data(1).sname = 'Coregister: Estimate & Reslice: Resliced Images';
 matlabbatch{4}.spm.spatial.preproc.data(1).src_exbranch = substruct('.','val', '{}',{3}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1});
 matlabbatch{4}.spm.spatial.preproc.data(1).src_output = substruct('.','rfiles');
-matlabbatch{4}.spm.spatial.preproc.output.GM = [0 0 0];
-matlabbatch{4}.spm.spatial.preproc.output.WM = [0 0 0];
+matlabbatch{4}.spm.spatial.preproc.output.GM  = [0 0 0];
+matlabbatch{4}.spm.spatial.preproc.output.WM  = [0 0 0];
 matlabbatch{4}.spm.spatial.preproc.output.CSF = [0 0 0];
 matlabbatch{4}.spm.spatial.preproc.output.biascor = 1;
 matlabbatch{4}.spm.spatial.preproc.output.cleanup = 0;
 matlabbatch{4}.spm.spatial.preproc.opts.tpm = {
-                                               '/usr/global/spm/8/tpm/grey.nii'
-                                               '/usr/global/spm/8/tpm/white.nii'
-                                               '/usr/global/spm/8/tpm/csf.nii'
+                                               fullfile(spmpathstr,'tpm','grey.nii')
+                                               fullfile(spmpathstr,'tpm','white.nii')
+                                               fullfile(spmpathstr,'tpm','csf.nii')
                                                };
 matlabbatch{4}.spm.spatial.preproc.opts.ngaus = [2
                                                  2
                                                  2
                                                  4];
-matlabbatch{4}.spm.spatial.preproc.opts.regtype = 'mni';
-matlabbatch{4}.spm.spatial.preproc.opts.warpreg = 1;
-matlabbatch{4}.spm.spatial.preproc.opts.warpco = 25;
-matlabbatch{4}.spm.spatial.preproc.opts.biasreg = 0.0001;
+matlabbatch{4}.spm.spatial.preproc.opts.regtype  = 'mni';
+matlabbatch{4}.spm.spatial.preproc.opts.warpreg  = 1;
+matlabbatch{4}.spm.spatial.preproc.opts.warpco   = 25;
+matlabbatch{4}.spm.spatial.preproc.opts.biasreg  = 0.0001;
 matlabbatch{4}.spm.spatial.preproc.opts.biasfwhm = 60;
-matlabbatch{4}.spm.spatial.preproc.opts.samp = 3;
-matlabbatch{4}.spm.spatial.preproc.opts.msk = {''};
+matlabbatch{4}.spm.spatial.preproc.opts.samp     = 3;
+matlabbatch{4}.spm.spatial.preproc.opts.msk      = {''};
 
 % Run Indepenedent Normalization: Normalizaing the Functional Images
 matlabbatch{5}.spm.spatial.normalise.write.subj.matname(1) = cfg_dep;
