@@ -10,7 +10,7 @@ function [] = SpecifyModel()
     % data.
     
     Analysis.name             = 'Name_Of_Model_hrf';
-    Analysis.directory        = strcat('/path/to/analysis/directory',filesep,Analysis.name);
+    Analysis.directory        = fullfile('/path/to/analysis/directory', Analysis.name);
     Analysis.behav.directory  = '/path/to/behavrioal/data/directory';
     
     
@@ -71,7 +71,7 @@ function [] = SpecifyModel()
     % =================USER INPUT REQUIRED=================================
     
     clc
-    fprintf('Model: %s\n\n',Analysis.name)
+    fprintf('Model: %s\n\n', Analysis.name)
     fprintf('Model Directory: \n')
     disp(Analysis.directory)
     fprintf('\n')
@@ -85,13 +85,13 @@ function [] = SpecifyModel()
         % file using the stract function.
 
         curSubj.name      = Subjects{indexS};
-        curSubj.behavFile = strcat(Analysis.behav.directory,filesep,'ret',filesep,curSubj.name,filesep,curSubj.name,Analysis.behav.FileIdentifier);
+        curSubj.behavFile = fullfile(Analysis.behav.directory, 'ret', curSubj.name, [curSubj.name Analysis.behav.FileIdentifier]);
 
         %% Read in this Subject's Behavioral Data
         % This section of the code reads in the subjects behavioral data.
         
         fprintf('Reading in Subject %s ''s Behav Data ...\n\n\n\n',curSubj.name)
-        [~,~,BehavData]   = xlsread(curSubj.behavFile,'Sheet1');
+        [~,~,BehavData]   = xlsread(curSubj.behavFile, 'Sheet1');
         [Number.OfRows,~] = size(BehavData);
 
         %% Build path to this subjects analysis directory
@@ -397,8 +397,8 @@ function [] = SpecifyModel()
             %% Save the Multiple Conditions *.mat file in this subjects' analysis
             % directory
 
-            matfilename = strcat(curSubj.directory, filesep, curSubj.name, 'Run',num2str(indexRun), '.mat');
-            fprintf('Saving Subject %s''s Run %d multiple conditions file...\n\n\n',curSubj.name,indexRun)
+            matfilename = fullfile(curSubj.directory, curSubj.name, ['Run', num2str(indexRun), '.mat']);
+            fprintf('Saving Subject %s''s Run %d multiple conditions file...\n\n\n', curSubj.name, indexRun)
             pause(3)
             if exist('ParametricMods','var')
                 save(matfilename,'names','onsets','durations','pmod');
@@ -416,7 +416,7 @@ function [] = SpecifyModel()
     function NumOfRuns = HowManyRuns(BehavData,CurRunColumn)
         %%% Function to determine how many runs occur in this set of behav
         %%% data.
-        [Number.OfRows,~]    = size(BehavData); 
+        [Number.OfRows,~] = size(BehavData); 
         NumOfRuns = 0;
         for j = 2:Number.OfRows
            NumOfRuns = max(NumOfRuns, BehavData{j,CurRunColumn});
@@ -445,7 +445,7 @@ function [] = SpecifyModel()
                 ocount = ocount+1;
                 outonsets{ocount} = inonsets{o};             
             end
-        end 
+        end
 
         dcount = 0;
         for d = 1:length(indurations)

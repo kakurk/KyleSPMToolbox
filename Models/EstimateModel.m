@@ -57,7 +57,7 @@ function [] = EstimateModel()
     % that have a:
     
     clc
-    fprintf('Analysis: %s\n\n',Analysis.name)
+    fprintf('Analysis: %s\n\n', Analysis.name)
     
     fprintf('Gathering Data...\n\n')
     
@@ -72,9 +72,9 @@ function [] = EstimateModel()
 
         % Model Directory and Mask
 
-        Model.directory = strcat(Analysis.dir,filesep,Subjects{curSub});
+        Model.directory = fullfile(Analysis.dir,Subjects{curSub});
         if Mask.on == 1
-            Model.mask      = strcat(Mask.dir,filesep,Subjects{curSub},filesep,Mask.name);
+            Model.mask = fullfile(Mask.dir,Subjects{curSub},Mask.name);
         end
         
         % For each run in the model..
@@ -84,28 +84,28 @@ function [] = EstimateModel()
 
         for i = 1:NumOfRuns
             fprintf('Run: %d\n',i)
-            curFuncDir              = strcat(Func.dir,filesep,Subjects{curSub},filesep,Runs{i});
+            curFuncDir              = fullfile(Func.dir,Subjects{curSub},Runs{i});
             Model.runs{i}.scans     = cellstr(spm_select('ExtFPList',curFuncDir,Func.wildcard,Inf));
             mutliconFileName        = strcat(Subjects{curSub},'Run',num2str(i),'.mat');
             Model.runs{i}.multicond = strcat(Model.directory,filesep,mutliconFileName); % from Model Spec
-            Model.runs{i}.motion    = spm_select('FPList',curFuncDir,Func.motwildcard); % from realighnment
+            Model.runs{i}.motion    = spm_select('FPList',curFuncDir,Func.motwildcard); % from realignment
         end
 
         %% Set and Save the SPM job
         
-        matlabbatch = setModelparams(Model,show,Mask.on);
-        save(strcat(Model.directory, filesep, 'Job.mat'),'matlabbatch')
+        matlabbatch = setModelparams(Model, show, Mask.on);
+        save(fullfile(Model.directory, 'Job.mat'), 'matlabbatch')
 
         %% Run the SPM job
         
         if strcmp(jobman_option,'interactive')
             fprintf('\n')
             fprintf('Displaying SPM Job...\n')
-            spm_jobman(jobman_option,matlabbatch)
+            spm_jobman(jobman_option, matlabbatch)
             pause
         elseif strcmp(jobman_option,'run')
             try
-                spm_jobman(jobman_option,matlabbatch)
+                spm_jobman(jobman_option, matlabbatch)
             catch error %#ok<*NASGU>
                 fprintf('ERROR ON: %s', Subjects{curSub})
             end
