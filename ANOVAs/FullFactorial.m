@@ -1,4 +1,4 @@
-function [] = FullFactorial()
+function FullFactorial()
 %% Initalize Counter Variables 
 % These are counter variables, used to keep track of the number of
 % groups/contrasts/effects/factors that the user specifies in the body of
@@ -18,23 +18,16 @@ function [] = FullFactorial()
 
     Number.OfGroups = Number.OfGroups+1;
     Groups(Number.OfGroups).name = 'OA';
-    Groups(Number.OfGroups).ids = { '60o422','61o388','61o427','61o429','62o432','63o395',...
-                               '63o397','63o413','64o405','65o425','65o426','68o334',...
-                               '68o416','69o418','70o421','70o434','71o153','71o424',...
-                               '75o264','75o372','76o407','77o417','81o346' }; % '32930cfl' '33343vsn' '33055eaj'
+    Groups(Number.OfGroups).ids = { 'o001' 'o002' 'o003' 'o004' 'o005' };
 
     Number.OfGroups = Number.OfGroups+1;
     Groups(Number.OfGroups).name = 'YA';
-    Groups(Number.OfGroups).ids = { '19y2159' '19y2184' '20y2161' '20y2162' '21y2108' '21y2115' ...
-                               '21y2122' '21y2136' '21y2153' '21y2160' '21y2197' '22y2189' ...
-                               '22y2195' '22y2196' '23y2107' '25y2164' '25y2176' '25y2177' ...
-                               '26y2175' '27y2163' '28y2152' '28y2178' '30y2174' '31y2150' ...
-                               '31y2165' };
+    Groups(Number.OfGroups).ids = { 'y001' 'y002' 'y003' 'y004' 'y005' };
 
     % Analysis name
-    ANOVA.analysis = 'Relatedness_hrf';
+    ANOVA.analysis = 'Name_Of_Analysis';
     % This Analysis' directory
-    ANOVA.directory = strcat('s:\nad12\MORF\Analysis_ret',filesep,ANOVA.analysis);
+    ANOVA.directory = fullfile('Path/To/Analysis/Folder', ANOVA.analysis);
 
 %% Routine 1: Number of Subjects
 % Calculate the total number of subjects from the cellstrings entered above
@@ -57,14 +50,14 @@ function [] = FullFactorial()
     % First Repeated Measure
 
     Number.OfFacts = Number.OfFacts+1;
-    ANOVA.factors(Number.OfFacts).name = 'Encoding Condition (Incidental/Intentional)';
+    ANOVA.factors(Number.OfFacts).name = 'NAME OF FIRST REPEATED MEASURE';
     ANOVA.factors(Number.OfFacts).levels = 2;
     ANOVA.factors(Number.OfFacts).type = 'within';
 
     % Second Repeated Measure
 
     Number.OfFacts = Number.OfFacts+1;
-    ANOVA.factors(Number.OfFacts).name   = 'Subsequent Memory (HighDM/LowDM/MissDM)';
+    ANOVA.factors(Number.OfFacts).name   = 'NAME OF SECOND REPEATED MEASURE';
     ANOVA.factors(Number.OfFacts).levels = 3;
     ANOVA.factors(Number.OfFacts).type   = 'within';
 
@@ -102,7 +95,7 @@ function [] = FullFactorial()
 
 %% Gather Contrasts
 
-    ANOVA = gathercontrasts(ANOVA,Groups,Contrasts,Number);
+    ANOVA = gathercontrasts(ANOVA, Groups, Contrasts, Number);
     
 %% Set Parameters
 
@@ -112,7 +105,7 @@ function [] = FullFactorial()
 
     spm('Defaults','FMRI')
     spm_jobman('initcfg')
-    spm_jobman(jobman_option,matlabbatch)
+    spm_jobman(jobman_option, matlabbatch)
 
 %% Sub Functions
 

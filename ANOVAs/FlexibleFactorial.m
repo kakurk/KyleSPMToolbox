@@ -1,4 +1,4 @@
-function [] = FlexibleFactorial()
+function FlexibleFactorial()
 % Function for running a flexible factorial ANOVA in SPM.
 % Written by Kyle Kurkela, kyleakurkela@gmail.com
 
@@ -20,17 +20,11 @@ function [] = FlexibleFactorial()
 
     Number.OfGroups = Number.OfGroups+1;
     Groups{Number.OfGroups}.name = 'OA';
-    Groups{Number.OfGroups}.ids = { '33321ebw' '32704jkg' '32950rek' '32959eah' '32973jtg' ... 
-                               '32613rmr' '32582mla' '33111gsw' '33105blk' '33239ftr' ...
-                               '33175lhr' '33316knl' '32658rkw' '33282aer' '33260reh' ...
-                               '33830cpm' '32930cfl' '33343vsn' '33055eaj' }; % 
+    Groups{Number.OfGroups}.ids  = { 'o001' 'o002' 'o003' 'o004' 'o005' };
 
     Number.OfGroups = Number.OfGroups+1;
     Groups{Number.OfGroups}.name = 'YA';
-    Groups{Number.OfGroups}.ids = { '32350ajf' '32255bjh' '32534cdl' '32257cjh' '32392dlm' ...
-                               '32313ecw' '32712euo' '32345gmb' '32698gxg' '32158jdb' ...
-                               '32225jhs' '32717mac' '32564nxe' '32317rhc' '32375sae' ...
-                               '32644tem' '32283wcc' '32391wtd' };
+    Groups{Number.OfGroups}.ids  = { 'y001' 'y002' 'y003' 'y004' 'y005' };
 
     % Calculate the total number of subjects from the cellstrings entered above
     for k = 1:length(Groups)
@@ -38,25 +32,25 @@ function [] = FlexibleFactorial()
     end
     
     % This Analysis' directory
-    ANOVA.analysis  = 'Retreival_ER_Collapsed_hrf';
-    ANOVA.directory = strcat('s:\nad12\Hybridwords\Analyses\SPM8\EPI_Masked',filesep,ANOVA.analysis);
+    ANOVA.analysis  = 'Name_Of_Model';
+    ANOVA.directory = fullfile('Path/To/Analysis/Directory', ANOVA.analysis);
 
 %% ANOVA Factors
 % Create the between subjects factors 'Subjects' which will be used for all
-% anayses
+% analyses
 
     Number.OfFacts = Number.OfFacts+1;
-    ANOVA.factors(Number.OfFacts).name = 'Subjects';
-    ANOVA.factors(Number.OfFacts).levels = Number.OfSubjs;
-    ANOVA.factors(Number.OfFacts).type = 'between';
-    ANOVA.factors(Number.OfFacts).dep = 0;
+    ANOVA.factors(Number.OfFacts).name     = 'Subjects';
+    ANOVA.factors(Number.OfFacts).levels   = Number.OfSubjs;
+    ANOVA.factors(Number.OfFacts).type     = 'between';
+    ANOVA.factors(Number.OfFacts).dep      = 0;
     ANOVA.factors(Number.OfFacts).variance = 0;
 
     Number.OfFacts = Number.OfFacts+1;
-    ANOVA.factors(Number.OfFacts).name = 'Group';
-    ANOVA.factors(Number.OfFacts).levels = Number.OfGroups;
-    ANOVA.factors(Number.OfFacts).type = 'between';
-    ANOVA.factors(Number.OfFacts).dep = 0;
+    ANOVA.factors(Number.OfFacts).name     = 'Group';
+    ANOVA.factors(Number.OfFacts).levels   = Number.OfGroups;
+    ANOVA.factors(Number.OfFacts).type     = 'between';
+    ANOVA.factors(Number.OfFacts).dep      = 0;
     ANOVA.factors(Number.OfFacts).variance = 0;
 
 %% Within Subjects Factors
@@ -64,24 +58,24 @@ function [] = FlexibleFactorial()
 
     switch ANOVA.analysis
 
-        case 'Encoding_ER_Expanded_hrf'
+        case 'Name_Of_Model'
 
             % First Repeated Measure
 
             Number.OfFacts = Number.OfFacts+1;
-            ANOVA.factors(Number.OfFacts).name = 'Encoding Condition (Incidental/Intentional)';
-            ANOVA.factors(Number.OfFacts).levels = 2;
-            ANOVA.factors(Number.OfFacts).type = 'within';
-            ANOVA.factors(Number.OfFacts).dep = 1;
+            ANOVA.factors(Number.OfFacts).name     = 'Name_Of_First_Repeated_Measure (INC/INT)';
+            ANOVA.factors(Number.OfFacts).levels   = 2;
+            ANOVA.factors(Number.OfFacts).type     = 'within';
+            ANOVA.factors(Number.OfFacts).dep      = 1;
             ANOVA.factors(Number.OfFacts).variance = 1;
 
             % Second Repeated Measure
 
             Number.OfFacts = Number.OfFacts+1;
-            ANOVA.factors(Number.OfFacts).name   = 'Subsequent Memory (HighDM/LowDM/MissDM)';
-            ANOVA.factors(Number.OfFacts).levels = 3;
-            ANOVA.factors(Number.OfFacts).type   = 'within';
-            ANOVA.factors(Number.OfFacts).dep = 1;
+            ANOVA.factors(Number.OfFacts).name     = 'Name_Of_First_Repeated_Measure (HDm/LDn/allMissDm)';
+            ANOVA.factors(Number.OfFacts).levels   = 3;
+            ANOVA.factors(Number.OfFacts).type     = 'within';
+            ANOVA.factors(Number.OfFacts).dep      = 1;
             ANOVA.factors(Number.OfFacts).variance = 1;
 
              % Corresponding Contrasts
@@ -116,125 +110,6 @@ function [] = FlexibleFactorial()
             Contrasts(Number.OfContrasts).image     = 'con_0007.img';
             Contrasts(Number.OfContrasts).FactLevel = [2 3];
 
-        case 'Encoding_ER_Collapsed_hrf'
-
-            % First Repeated Measure
-
-            Number.OfFacts = Number.OfFacts+1;
-            ANOVA.factors(Number.OfFacts).name   = 'Encoding Condition (Incidental/Intentional)';
-            ANOVA.factors(Number.OfFacts).levels = 2;
-            ANOVA.factors(Number.OfFacts).type   = 'within';
-            ANOVA.factors(Number.OfFacts).dep = 1;
-            ANOVA.factors(Number.OfFacts).variance = 1;
-
-             % Corresponding Contrasts
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'HighHit_inc_vs_LowHitMiss_inc';
-            Contrasts(Number.OfContrasts).image     = 'con_0003.img';
-            Contrasts(Number.OfContrasts).FactLevel = 1;
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'HighHit_int_vs_LowHitMiss_int';        
-            Contrasts(Number.OfContrasts).image     = 'con_0006.img';
-            Contrasts(Number.OfContrasts).FactLevel = 2;
-
-        case 'Encoding_Mixed_hrf'
-
-            % First Repeated Measure
-
-            Number.OfFacts = Number.OfFacts+1;        
-            ANOVA.factors(Number.OfFacts).name   = 'Encoding Condition (Incidental/Intentional)';
-            ANOVA.factors(Number.OfFacts).levels = 2;
-            ANOVA.factors(Number.OfFacts).type   = 'within';
-            ANOVA.factors(Number.OfFacts).dep = 1;
-            ANOVA.factors(Number.OfFacts).variance = 1;
-
-             % Corresponding Contrasts
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'TaskBLK_inc';
-            Contrasts(Number.OfContrasts).image     = 'con_0008.img';
-            Contrasts(Number.OfContrasts).FactLevel = 1;
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'TaskBLK_int';
-            Contrasts(Number.OfContrasts).image     = 'con_0009.img';
-            Contrasts(Number.OfContrasts).FactLevel = 2;
-
-        case 'Retreival_ER_Collapsed_hrf'
-
-            % First Repeated Measure
-
-            Number.OfFacts = Number.OfFacts+1;  
-            ANOVA.factors(Number.OfFacts).name   = 'Encoding Condition';
-            ANOVA.factors(Number.OfFacts).levels = 2;
-            ANOVA.factors(Number.OfFacts).type   = 'within'; 
-            ANOVA.factors(Number.OfFacts).dep = 1;
-            ANOVA.factors(Number.OfFacts).variance = 1;
-
-             % Corresponding Contrasts
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'Hit_inc_vs_Miss_inc';
-            Contrasts(Number.OfContrasts).image     = 'con_0001.img';
-            Contrasts(Number.OfContrasts).FactLevel = 1;
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'Hit_int_vs_Miss_int';
-            Contrasts(Number.OfContrasts).image     = 'con_0002.img';
-            Contrasts(Number.OfContrasts).FactLevel = 2;
-
-        case 'Retreival_ER_Expanded_hrf'
-
-            % First Repeated Measure
-            Number.OfFacts = Number.OfFacts+1;          
-            ANOVA.factors(Number.OfFacts).name   = 'Encoding Condition';
-            ANOVA.factors(Number.OfFacts).type   = 'within'; 
-            ANOVA.factors(Number.OfFacts).levels = 2;
-            ANOVA.factors(Number.OfFacts).dep = 1;
-            ANOVA.factors(Number.OfFacts).variance = 1;
-
-            % Second Repeated Measure
-            Number.OfFacts = Number.OfFacts+1;        
-            ANOVA.factors(Number.OfFacts).name   = 'Memory (HighHit/LowHit/Miss)';
-            ANOVA.factors(Number.OfFacts).type   = 'within';
-            ANOVA.factors(Number.OfFacts).levels = 3;
-            ANOVA.factors(Number.OfFacts).dep = 1;
-            ANOVA.factors(Number.OfFacts).variance = 1;
-
-            % Corresponding Contrasts
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'HighHit_inc';
-            Contrasts(Number.OfContrasts).image     = 'con_0002.img';
-            Contrasts(Number.OfContrasts).FactLevel = [1 1];
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'LowHit_inc';
-            Contrasts(Number.OfContrasts).image     = 'con_0003.img';
-            Contrasts(Number.OfContrasts).FactLevel = [1 2];
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'Miss_inc';
-            Contrasts(Number.OfContrasts).image     = 'con_0004.img';
-            Contrasts(Number.OfContrasts).FactLevel = [1 3];
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'HighHit_int';
-            Contrasts(Number.OfContrasts).image     = 'con_0005.img';
-            Contrasts(Number.OfContrasts).FactLevel = [2 1];
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'LowHit_int';
-            Contrasts(Number.OfContrasts).image     = 'con_0006.img';
-            Contrasts(Number.OfContrasts).FactLevel = [2 2];
-
-            Number.OfContrasts = Number.OfContrasts + 1;
-            Contrasts(Number.OfContrasts).name      = 'Miss_int';
-            Contrasts(Number.OfContrasts).image     = 'con_0007.img';
-            Contrasts(Number.OfContrasts).FactLevel = [2 3];
-
     end
 
 %% Specify Effects to Model
@@ -242,17 +117,17 @@ function [] = FlexibleFactorial()
     % Main Effect of Subjects
     Number.OfEffects = Number.OfEffects + 1;
     ANOVA.effects(Number.OfEffects).type = 'fmain';
-    ANOVA.effects(Number.OfEffects).vec = 1;
+    ANOVA.effects(Number.OfEffects).vec  = 1;
 
     % Two Way Interaction of Age Group and Encoding Condition
     Number.OfEffects = Number.OfEffects + 1;
     ANOVA.effects(Number.OfEffects).type = 'inter';
-    ANOVA.effects(Number.OfEffects).vec = [2 
-                                       3];
+    ANOVA.effects(Number.OfEffects).vec  = [2 
+                                            3];
                                    
 %% Routine                                   
 
-    ANOVA = gathercontrasts(ANOVA,Groups,Contrasts,Number);
+    ANOVA = gathercontrasts(ANOVA, Groups, Contrasts, Number);
     
     % Set Parameters
 
@@ -262,7 +137,7 @@ function [] = FlexibleFactorial()
 
     spm('Defaults','FMRI')
     spm_jobman('initcfg')
-    spm_jobman(jobman_option,matlabbatch)
+    spm_jobman(jobman_option, matlabbatch)
 
 %% Subfunctions
     
