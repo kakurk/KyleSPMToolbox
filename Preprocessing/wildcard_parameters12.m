@@ -61,15 +61,15 @@ matlabbatch{2}.spm.temporal.st.refslice = 47;
 matlabbatch{2}.spm.temporal.st.prefix   = 'a';
 
 % Run Independent Coregistration Parameters
-matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1) = cfg_dep;
-matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).tname = 'Reference Image';
-matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).tgt_spec{1}(1).name  = 'filter';
-matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).tgt_spec{1}(1).value = 'image';
-matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).tgt_spec{1}(2).name  = 'strtype';
-matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).tgt_spec{1}(2).value = 'e';
-matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).sname = 'Realign: Estimate & Reslice: Mean Image';
-matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).src_exbranch = substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1});
-matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).src_output   = substruct('.','rmean');
+matlabbatch{3}.spm.spatial.coreg.estimate.ref(1) = cfg_dep;
+matlabbatch{3}.spm.spatial.coreg.estimate.ref(1).tname = 'Reference Image';
+matlabbatch{3}.spm.spatial.coreg.estimate.ref(1).tgt_spec{1}(1).name  = 'filter';
+matlabbatch{3}.spm.spatial.coreg.estimate.ref(1).tgt_spec{1}(1).value = 'image';
+matlabbatch{3}.spm.spatial.coreg.estimate.ref(1).tgt_spec{1}(2).name  = 'strtype';
+matlabbatch{3}.spm.spatial.coreg.estimate.ref(1).tgt_spec{1}(2).value = 'e';
+matlabbatch{3}.spm.spatial.coreg.estimate.ref(1).sname = 'Realign: Estimate & Reslice: Mean Image';
+matlabbatch{3}.spm.spatial.coreg.estimate.ref(1).src_exbranch = substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1});
+matlabbatch{3}.spm.spatial.coreg.estimate.ref(1).src_output   = substruct('.','rmean');
 
 % Inputting Subject's Anatomical Information
 anat_directory = fullfile(directories.anat, subjectid); % path to this subjects anatomical folder
