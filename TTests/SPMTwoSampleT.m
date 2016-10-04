@@ -17,7 +17,7 @@ function [] = SPMTwoSampleT()
 % User Input Part 2: Model Directory
 % Where is this model on this computer system?
     Model.name      = 'Name_of_Model_hrf';
-    Model.directory = strcat('/path/to/analyses/directory',filesep,Model.name);
+    Model.directory = fullfile('/path/to/analyses/directory', Model.name);
 
 
 % User Input Part 3: SPM Job Manager Option
@@ -28,8 +28,7 @@ function [] = SPMTwoSampleT()
 % Which contrasts would you like to submit to the two sample t-tests? All
 % of them? Only a sub-set of them?
     
-    contrasts2run = 'all';
-%     contrasts2run = [1:3 7];    
+    contrasts2run = 'all'; % [1:3 7];
     
 % User Input Part 5: One Sample T-Test Contrasts
 % Do you want the OneSample T-Test contrast of each group in the two-sample 
@@ -40,52 +39,52 @@ function [] = SPMTwoSampleT()
 
 %% Gather Contrasts
 
-    clc
-    fprintf('Analysis: %s\n\n',Model.name)
-    display('Analysis Directory:')
-    display(Model.directory)
-    fprintf('\n')
-    display('Gathering contrasts files...')
-    fprintf('\n\n')
-    tic
-    Model = GatherCons(Group,Model,contrasts2run);
-    toc
-    fprintf('\n')
+clc
+fprintf('Analysis: %s\n\n', Model.name)
+display('Analysis Directory:')
+display(Model.directory)
+fprintf('\n')
+display('Gathering contrasts files...')
+fprintf('\n\n')
+tic
+Model = GatherCons(Group, Model, contrasts2run);
+toc
+fprintf('\n')
     
 %% Run through SPM
 
-    spm('Defaults','FMRI')
-    spm_jobman('initcfg')
-    [~,col] = size(Model.TwoSampleTs);
-    for curTest = 1:col
-        TwoSampleT_dir = strcat(Model.directory,filesep,Group(1).name,num2str(length(Group(1).subjects)),'_vs_',Group(2).name,num2str(length(Group(2).subjects)));
-        curTest_dir    = strcat(TwoSampleT_dir,filesep,Model.TwoSampleTs(1,curTest).confiles{1}(end-7:end-4),'_',Model.TwoSampleTs(1,curTest).conname);
-        if isdir(curTest_dir)
-        else
-            mkdir(curTest_dir)
-        end        
-        
-        matlabbatch = setSPMparameters(Group,Model.TwoSampleTs(:,curTest),curTest_dir);
-        if strcmp(jobman_option,'run')
-            fprintf('Running SPM job for two-sample t-test of contrast %s ''%s''...\n',Model.TwoSampleTs(1,curTest).confiles{1}(end-7:end-4),Model.TwoSampleTs(1,curTest).conname)
-        elseif strcmp(jobman_option,'interactive')
-            fprintf('Displaying SPM job for two sample t-test of contrast %s ''%s''...\n',Model.TwoSampleTs(1,curTest).confiles{1}(end-7:end-4),Model.TwoSampleTs(1,curTest).conname)
-        end
-        spm_jobman(jobman_option,matlabbatch)
-        if strcmp(jobman_option,'interactive')
-            pause
-        end
-        save(strcat(curTest_dir,filesep,'Job.mat'),'matlabbatch')
-        clear matlabbatch
-        if strcmp(OneSampleOption,'Yes')
-            fprintf('Copying One Sample T''s...\n')
-            CopyOneSampleTs(Group,Model,curTest_dir);
-        end
+spm('Defaults','FMRI')
+spm_jobman('initcfg')
+[~,col] = size(Model.TwoSampleTs);
+for curTest = 1:col
+    TwoSampleT_dir = strcat(Model.directory,filesep,Group(1).name,num2str(length(Group(1).subjects)),'_vs_',Group(2).name,num2str(length(Group(2).subjects)));
+    curTest_dir    = strcat(TwoSampleT_dir,filesep,Model.TwoSampleTs(1,curTest).confiles{1}(end-7:end-4),'_',Model.TwoSampleTs(1,curTest).conname);
+    if isdir(curTest_dir)
+    else
+        mkdir(curTest_dir)
+    end        
+
+    matlabbatch = setSPMparameters(Group,Model.TwoSampleTs(:,curTest),curTest_dir);
+    if strcmp(jobman_option,'run')
+        fprintf('Running SPM job for two-sample t-test of contrast %s ''%s''...\n',Model.TwoSampleTs(1,curTest).confiles{1}(end-7:end-4),Model.TwoSampleTs(1,curTest).conname)
+    elseif strcmp(jobman_option,'interactive')
+        fprintf('Displaying SPM job for two sample t-test of contrast %s ''%s''...\n',Model.TwoSampleTs(1,curTest).confiles{1}(end-7:end-4),Model.TwoSampleTs(1,curTest).conname)
     end
+    spm_jobman(jobman_option,matlabbatch)
+    if strcmp(jobman_option,'interactive')
+        pause
+    end
+    save(strcat(curTest_dir,filesep,'Job.mat'),'matlabbatch')
+    clear matlabbatch
+    if strcmp(OneSampleOption,'Yes')
+        fprintf('Copying One Sample T''s...\n')
+        CopyOneSampleTs(Group,Model,curTest_dir);
+    end
+end
 
 %% Subfunctions
 
-    function matlabbatch = setSPMparameters(Group,CurTest,curTest_dir)
+    function matlabbatch = setSPMparameters(Group, CurTest, curTest_dir)
         
         matlabbatch{1}.spm.stats.factorial_design.dir = cellstr(curTest_dir);
         matlabbatch{1}.spm.stats.factorial_design.des.t2.scans1 = CurTest(1,1).confiles;
@@ -136,7 +135,7 @@ function [] = SPMTwoSampleT()
 
     end
 
-    function [Model] = GatherCons(Group,Model,Contrasts2Run)
+    function Model = GatherCons(Group, Model, Contrasts2Run)
         
         % First thing we need to do is parse the Contrasts2Run
         if ischar(Contrasts2Run)
@@ -202,9 +201,9 @@ function [] = SPMTwoSampleT()
         fprintf('\n\n')
     end
 
-    function [] = CopyOneSampleTs(Group,Model,curTest_dir)
+    function CopyOneSampleTs(Group, Model, curTest_dir)
         SPM = [];
-        load(strcat(curTest_dir,filesep,'SPM.mat'))
+        load(fullfile(curTest_dir,'SPM.mat'))
         TwoSampleSPM = SPM;
         for cg = 1:length(Group)
             SPM = [];
@@ -229,21 +228,21 @@ function [] = SPMTwoSampleT()
             disp(fullfile(OneSampleT_dir,'con_0001.img'))
             disp('--->')
             disp(strcat('     ',curTest_dir,filesep,sprintf('con_000%d.img',(cg+2))))
-            copyfile(fullfile(OneSampleT_dir,'con_0001.img'),strcat(curTest_dir,filesep,sprintf('con_000%d.img',(cg+2))))
-            copyfile(fullfile(OneSampleT_dir,'con_0001.hdr'),strcat(curTest_dir,filesep,sprintf('con_000%d.hdr',(cg+2))))
+            copyfile(fullfile(OneSampleT_dir, 'con_0001.img'), fullfile(curTest_dir, sprintf('con_000%d.img', (cg+2))))
+            copyfile(fullfile(OneSampleT_dir, 'con_0001.hdr'), fullfile(curTest_dir, sprintf('con_000%d.hdr', (cg+2))))
             
             fprintf('\n')
             disp('Copying...')
             fprintf('\n')
-            disp(fullfile(OneSampleT_dir,'spmT_0001.img'))
+            disp(fullfile(OneSampleT_dir, 'spmT_0001.img'))
             disp('--->')
             disp(strcat('     ',curTest_dir,filesep,sprintf('spmT_000%d.img',(cg+2))))
-            copyfile(fullfile(OneSampleT_dir,'spmT_0001.img'),strcat(curTest_dir,filesep,sprintf('spmT_000%d.img',(cg+2))))
-            copyfile(fullfile(OneSampleT_dir,'spmT_0001.hdr'),strcat(curTest_dir,filesep,sprintf('spmT_000%d.hdr',(cg+2))))                
+            copyfile(fullfile(OneSampleT_dir,'spmT_0001.img'), fullfile(curTest_dir, sprintf('spmT_000%d.img',(cg+2))))
+            copyfile(fullfile(OneSampleT_dir,'spmT_0001.hdr'), fullfile(curTest_dir, sprintf('spmT_000%d.hdr',(cg+2))))                
         end
         SPM = []; %#ok<*NASGU>
         SPM = TwoSampleSPM;
-        save(strcat(curTest_dir,filesep,'SPM.mat'),'SPM')
+        save(fullfile(curTest_dir, 'SPM.mat'), 'SPM')
     end
 
 end

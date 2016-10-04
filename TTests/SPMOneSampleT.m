@@ -5,10 +5,6 @@ function [] = SPMOneSampleT()
 
     % User Input Step 1: Specfiy Groups
     % Which subjects are in which experimental groups? Specify below.
-    
-    Group(1).name = 'AllSubjs';
-    Group(1).subjects = { 'y001' 'y002' 'y003' 'y004' 'y005' ...
-                          'o001' 'o002' 'o003' 'o004' 'o005' };
 
     Group(1).name = 'OA';
     Group(1).subjects = { 'o001' 'o002' 'o003' 'o004' 'o005' };
@@ -19,7 +15,7 @@ function [] = SPMOneSampleT()
 	% User Input Step 2: Specify the analysis directory
     % Where is the analysis directory on this machine?
     Model.name      = 'Name_of_Model_hrf';
-    Model.directory = strcat('/path/to/analyses/directory',filesep,Model.name);
+    Model.directory = fullfile('/path/to/analyses/directory', Model.name);
     
     % User Input Step 3: Jobmanager option
     % Set the following jobman_option to 'interactive' to view in SPM parameters the GUI. 
@@ -32,76 +28,79 @@ function [] = SPMOneSampleT()
     % User Input Step 4: Contrasts to Run
     % Which contrasts would you like to do the One Sample T-Tests on? All
     % of them? Only a subset of them? Specify below.
-    
-%     contrasts2run = [1:3 7];
-    contrasts2run = 'all';
+    contrasts2run = 'all'; % [1:3 7]
     
     
 %% Initalize Model Information
 % Do not edit!!
 
-    if length(Group) > 1
-        allSubjects = horzcat(Group(1).subjects,Group(2).subjects);
-    else
-        allSubjects = Group(1).subjects;
+if length(Group) > 1
+    allSubjects = horzcat(Group(1).subjects, Group(2).subjects);
+else
+    allSubjects = Group(1).subjects;
+end
+
+clc
+fprintf('Analysis: %s\n\n', Model.name)
+fprintf('Analysis Directory:\n')
+disp(Model.directory)
+fprintf('\n\n')
+disp('Checking number of contrasts...')
+tic
+numCons = checkexistingcons(allSubjects, Model.directory);
+fprintf('Total Number of Contrasts = %d ...\n\n', numCons)
+fprintf('\n')
+toc
+fprintf('\n')
+if isnumeric(contrasts2run)
+    numCons = length(contrasts2run);
+else
+    contrasts2run = 1:numCons;
+end
+fprintf('\n')
+fprintf('Submitting contrast %d to a one-sample t-test\n', contrasts2run)
+fprintf('\n')
+for g = 1:length(Group)
+    for k = 1:numCons
+        Model.OneSampleTs(g,k) = struct('confiles', '','conname', '');
     end
-    
-    clc
-    fprintf('Analysis: %s\n\n',Model.name)
-    fprintf('Analysis Directory:\n')
-    disp(Model.directory)
-    fprintf('\n\n')
-    disp('Checking number of contrasts...')
-    tic
-    numCons = checkexistingcons(allSubjects,Model.directory);
-    fprintf('Total Number of Contrasts = %d ...\n\n',numCons)
-    fprintf('\n')
-    toc
-    fprintf('\n')
-    if isnumeric(contrasts2run)
-        numCons = length(contrasts2run);
-    else
-        contrasts2run = 1:numCons;
-    end
-    fprintf('\n')
-    fprintf('Submitting contrast %d to a one-sample t-test\n',contrasts2run)
-    fprintf('\n')
-    for g = 1:length(Group)
-        for k = 1:numCons
-            Model.OneSampleTs(g,k)    = struct('confiles', '','conname', '');
-        end
-    end
+end
 
 %% Gather Contrasts
 % Do not edit!!
 
-    disp('Gathering contrasts files...')
-    tic
-    Model = GatherCons(Group,Model,contrasts2run);
-    toc
-    fprintf('\n')
+disp('Gathering contrasts files...')
+tic
+Model = GatherCons(Group, Model, contrasts2run);
+toc
+fprintf('\n')
     
 %% Run through SPM
 % Do not edit!!
 
-    spm('Defaults','FMRI')
-    spm_jobman('initcfg')
+spm('Defaults', 'FMRI')
+spm_jobman('initcfg')
+
+for g = 1:length(Group)
     
-    for g = 1:length(Group)
-        for curTest = 1:length(Model.OneSampleTs)
-            matlabbatch = setSPMparameters(Group(g),Model.OneSampleTs(g,curTest),Model);
-            
-            if strcmp(jobman_option,'run')
-                fprintf('Running SPM job for group %s contrast ''%s''...\n\n',Group(g).name,Model.OneSampleTs(g,curTest).conname)
-            elseif strcmp(jobman_option,'interactive')
-                 fprintf('Displaying SPM job for group %s contrast ''%s''...\n\n',Group(g).name,Model.OneSampleTs(g,curTest).conname)
-            end
-            spm_jobman(jobman_option,matlabbatch)
-            if strcmp(jobman_option,'interactive')
-                pause
-            end
+    for curTest = 1:length(Model.OneSampleTs)
+        
+        matlabbatch = setSPMparameters(Group(g),Model.OneSampleTs(g,curTest),Model);
+
+        if strcmp(jobman_option,'run')
+            fprintf('Running SPM job for group %s contrast ''%s''...\n\n',Group(g).name,Model.OneSampleTs(g,curTest).conname)
+        elseif strcmp(jobman_option,'interactive')
+             fprintf('Displaying SPM job for group %s contrast ''%s''...\n\n',Group(g).name,Model.OneSampleTs(g,curTest).conname)
         end
+        
+        spm_jobman(jobman_option,matlabbatch)
+        if strcmp(jobman_option,'interactive')
+            pause
+        end
+        
     end
+    
+end
 
 %% Subfunctions
 
