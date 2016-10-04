@@ -1,58 +1,66 @@
-function [Contrasts] = BuildContrastVectors(Contrasts,pathtoSPM)
-    % Function designed to a.) create contrast vectors and b.) run contrasts in
-    % SPM 8. Written by Kyle Kurkela, kyleakurkela@gmail.com. 3/2/2016.
+function Contrasts = BuildContrastVectors(Contrasts,pathtoSPM)
+% BuildContrastVectors:
+% Function designed to a.) create contrast vectors and b.) run contrasts in
+% SPM 8. Written by Kyle Kurkela, kyleakurkela@gmail.com. 3/2/2016.
+%
+%   Contrasts = BuildContrastVectors(Contrasts, pathtoSPM)
+%
+% See also: 
 
-    % Step 1: load the labels of each column of the design matrix
-    SPM = [];
-    load(pathtoSPM)
-    Regressors.Names = SPM.xX.name;
-    pos_neg = {'positive' 'negative'};    
-    Regressors.Estimability = spm_SpUtil('isCon',SPM.xX.X);
+%%
+% Step 1: load the labels of each column of the design matrix
+SPM = [];
+load(pathtoSPM)
+Regressors.Names = SPM.xX.name;
+pos_neg = {'positive' 'negative'};    
+Regressors.Estimability = spm_SpUtil('isCon',SPM.xX.X);
 
-    % Step 2: Build an array that tells you how many times each TT involved in
-    % the specified contrasts occurs in our design matrix. Because our TT are
-    % subject behavior defined, they may not occur in each run.
+%%
+% Step 2: Build an array that tells you how many times each TT involved in
+% the specified contrasts occurs in our design matrix. Because our TT are
+% subject behavior defined, they may not occur in each run.
 
-    for indexC = 1 : length(Contrasts)
-        for indexPN = 1:2
-            for indexQ = 1 : length(Contrasts(indexC).(pos_neg{indexPN}))
-                TT_occurance{indexC}.(pos_neg{indexPN})(indexQ) = 0; %#ok<*AGROW>
-                for indexV = 1 : length(Regressors.Names)
-                    if ~isempty(strfind(Regressors.Names{indexV},Contrasts(indexC).(pos_neg{indexPN}){indexQ})) && ...
-                            Regressors.Estimability(indexV)
-                       TT_occurance{indexC}.(pos_neg{indexPN})(indexQ) = TT_occurance{indexC}.(pos_neg{indexPN})(indexQ) + 1;
+for indexC = 1 : length(Contrasts)
+    for indexPN = 1:2
+        for indexQ = 1 : length(Contrasts(indexC).(pos_neg{indexPN}))
+            TT_occurance{indexC}.(pos_neg{indexPN})(indexQ) = 0; %#ok<*AGROW>
+            for indexV = 1 : length(Regressors.Names)
+                if ~isempty(strfind(Regressors.Names{indexV},Contrasts(indexC).(pos_neg{indexPN}){indexQ})) && ...
+                        Regressors.Estimability(indexV)
+                   TT_occurance{indexC}.(pos_neg{indexPN})(indexQ) = TT_occurance{indexC}.(pos_neg{indexPN})(indexQ) + 1;
+                end
+            end
+        end
+    end
+end
+
+%%
+% Step 3: Build contrast vectors and apply appropriate weights. 
+% Contrast vectors are weighted by: 
+% 1.) the number of runs that they occur in
+% 2.) by the number of included trial types in a given contrast
+
+for indexC = 1 : length(Contrasts)
+    Contrasts(indexC).vector = zeros(1,length(Regressors.Names));
+    for indexPN = 1:2
+        for indexQ = 1 : length(Contrasts(indexC).(pos_neg{indexPN}))
+            for indexV = 1 : length(Regressors.Names)
+                if ~isempty(strfind(Regressors.Names{indexV},Contrasts(indexC).(pos_neg{indexPN}){indexQ})) && ...
+                        Regressors.Estimability(indexV)
+                    if indexPN == 1
+                        Contrasts(indexC).vector(indexV) = roundsd(contrast_weight(TT_occurance{indexC}.(pos_neg{indexPN}),Contrasts(indexC).(pos_neg{indexPN}){indexQ},Regressors.Names,Regressors.Estimability),5);
+                    elseif indexPN == 2
+                        Contrasts(indexC).vector(indexV) = roundsd(-contrast_weight(TT_occurance{indexC}.(pos_neg{indexPN}),Contrasts(indexC).(pos_neg{indexPN}){indexQ},Regressors.Names,Regressors.Estimability),5);
                     end
                 end
             end
         end
     end
-
-    % Step 3: Build contrast vectors and apply appropriate weights. The
-    % contrast vectors needed to be weighted by the number of runs that they
-    % occur in and by the number of included trial types in a given
-    % contrast
-
-    for indexC = 1 : length(Contrasts)
-        Contrasts(indexC).vector = zeros(1,length(Regressors.Names));
-        for indexPN = 1:2
-            for indexQ = 1 : length(Contrasts(indexC).(pos_neg{indexPN}))
-                for indexV = 1 : length(Regressors.Names)
-                    if ~isempty(strfind(Regressors.Names{indexV},Contrasts(indexC).(pos_neg{indexPN}){indexQ})) && ...
-                            Regressors.Estimability(indexV)
-                        if indexPN == 1
-                            Contrasts(indexC).vector(indexV) = roundsd(contrast_weight(TT_occurance{indexC}.(pos_neg{indexPN}),Contrasts(indexC).(pos_neg{indexPN}){indexQ},Regressors.Names,Regressors.Estimability),5);
-                        elseif indexPN == 2
-                            Contrasts(indexC).vector(indexV) = roundsd(-contrast_weight(TT_occurance{indexC}.(pos_neg{indexPN}),Contrasts(indexC).(pos_neg{indexPN}){indexQ},Regressors.Names,Regressors.Estimability),5);
-                        end
-                    end
-                end
-            end
-        end
-    end
+end
 
     %% Sub Functions
     
-    function weight = contrast_weight(TT_occurance,TrialType,TT_name_vector,param_est)
+    function weight = contrast_weight(TT_occurance, TrialType, TT_name_vector, param_est)
         % Function designed to calculate the contrast weight for a given TT
         % occurance. Function takes in arguments of:
 
