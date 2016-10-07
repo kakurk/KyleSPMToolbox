@@ -82,7 +82,7 @@ matlabbatch{3}.spm.spatial.coreg.estwrite.ref(1).src_output = substruct('.','rme
 
 % Inputting Subject's Anatomical Information
 anat_directory = fullfile(directories.anat, subjectid); % path to this subjects anatomical folder
-matlabbatch{3}.spm.spatial.coreg.estwrite.source = {spm_select('ExtFPList', anat_directory, wildcards.anat, Inf)}; % path to anatomical image
+matlabbatch{3}.spm.spatial.coreg.estwrite.source = {spm_select('ExtFPListRec', anat_directory, wildcards.anat, Inf)}; % path to anatomical image
 
 % More Run Independent Coregistartion Parameters
 matlabbatch{3}.spm.spatial.coreg.estwrite.other = {''};

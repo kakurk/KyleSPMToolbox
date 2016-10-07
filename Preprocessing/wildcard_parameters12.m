@@ -73,7 +73,7 @@ matlabbatch{3}.spm.spatial.coreg.estimate.ref(1).src_output   = substruct('.','r
 
 % Inputting Subject's Anatomical Information
 anat_directory = fullfile(directories.anat, subjectid); % path to this subjects anatomical folder
-matlabbatch{3}.spm.spatial.coreg.estimate.source = {spm_select('ExtFPList', anat_directory, wildcards.anat)}; % path to anatomical image
+matlabbatch{3}.spm.spatial.coreg.estimate.source = {spm_select('ExtFPListRec', anat_directory, wildcards.anat)}; % path to anatomical image
 
 % More Run Independent Coregistartion Parameters
 matlabbatch{3}.spm.spatial.coreg.estimate.ref(1) = cfg_dep('Realign: Estimate & Reslice: Mean Image', substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','rmean'));
