@@ -10,7 +10,7 @@ function [] = EstimateModel()
     % data.
 
     Analysis.name = 'Name_of_Model_hrf';
-    Analysis.dir  = fullfile('/path/to/analyses/directory/analyses',Analysis.name);
+    Analysis.dir  = fullfile('/path/to/analyses/directory/analyses', Analysis.name);
     
     Func.dir         = '/path/to/functional/directory';
     Func.wildcard    = '^swa\w*\.nii';
@@ -72,9 +72,9 @@ function [] = EstimateModel()
 
         % Model Directory and Mask
 
-        Model.directory = fullfile(Analysis.dir,Subjects{curSub});
+        Model.directory = fullfile(Analysis.dir, Subjects{curSub});
         if Mask.on == 1
-            Model.mask = fullfile(Mask.dir,Subjects{curSub},Mask.name);
+            Model.mask = fullfile(Mask.dir, Subjects{curSub}, Mask.name);
         end
         
         % For each run in the model..
@@ -84,11 +84,11 @@ function [] = EstimateModel()
 
         for i = 1:NumOfRuns
             fprintf('Run: %d\n',i)
-            curFuncDir              = fullfile(Func.dir,Subjects{curSub},Runs{i});
-            Model.runs{i}.scans     = cellstr(spm_select('ExtFPList',curFuncDir,Func.wildcard,Inf));
-            mutliconFileName        = strcat(Subjects{curSub},'Run',num2str(i),'.mat');
-            Model.runs{i}.multicond = fullfile(Model.directory,mutliconFileName);       % from Model Spec
-            Model.runs{i}.motion    = spm_select('FPList',curFuncDir,Func.motwildcard); % from realignment
+            curFuncDir              = fullfile(Func.dir, Subjects{curSub}, Runs{i});
+            Model.runs{i}.scans     = cellstr(spm_select('ExtFPList', curFuncDir, Func.wildcard, Inf));
+            mutliconFileName        = strcat(Subjects{curSub}, 'Run', num2str(i), '.mat');
+            Model.runs{i}.multicond = fullfile(Model.directory, mutliconFileName);       % from Model Spec
+            Model.runs{i}.motion    = spm_select('FPList', curFuncDir, Func.motwildcard); % from realignment
         end
 
         %% Set and Save the SPM job
