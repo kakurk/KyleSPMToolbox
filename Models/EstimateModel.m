@@ -10,7 +10,7 @@ function [] = EstimateModel()
     % data.
 
     Analysis.name = 'Name_of_Model_hrf';
-    Analysis.dir  = strcat('/path/to/analyses/directory/analyses',filesep,Analysis.name);
+    Analysis.dir  = fullfile('/path/to/analyses/directory/analyses',Analysis.name);
     
     Func.dir         = '/path/to/functional/directory';
     Func.wildcard    = '^swa\w*\.nii';
@@ -78,8 +78,8 @@ function [] = EstimateModel()
         end
         
         % For each run in the model..
-
-        a         = dir([Model.directory filesep Subjects{curSub} '*.mat']);
+        
+        a         = dir(fullfile(Model.directory, Subjects{curSub}, '*.mat'));
         NumOfRuns = length(a); % determine number of runs from number of Model Spec .mat files
 
         for i = 1:NumOfRuns
@@ -87,7 +87,7 @@ function [] = EstimateModel()
             curFuncDir              = fullfile(Func.dir,Subjects{curSub},Runs{i});
             Model.runs{i}.scans     = cellstr(spm_select('ExtFPList',curFuncDir,Func.wildcard,Inf));
             mutliconFileName        = strcat(Subjects{curSub},'Run',num2str(i),'.mat');
-            Model.runs{i}.multicond = strcat(Model.directory,filesep,mutliconFileName); % from Model Spec
+            Model.runs{i}.multicond = fullfile(Model.directory,mutliconFileName);       % from Model Spec
             Model.runs{i}.motion    = spm_select('FPList',curFuncDir,Func.motwildcard); % from realignment
         end
 
