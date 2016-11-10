@@ -1,4 +1,9 @@
 function [] = EstimateModel()
+% EstimateModel     function for estimating a GLM specified using the
+%                   SpecifyModel. Allows user to display the
+%                   trial type onsets/durations in the SPM Batch GUI
+%
+% See also:  SpecifyModel
 %% User Input
 % You should ONLY (!!!!!!) need to edit this highlighted section of the
 % script.
@@ -67,21 +72,26 @@ for curSub = 1:length(Subjects)
     fprintf('\n')
     fprintf('Subject: %s\n\n',Subjects{curSub})
 
-    % Model Directory and Mask
-
+    % Model Directory: directory containing this subject's model
     Model.directory = fullfile(Analysis.dir, Subjects{curSub});
+    
+    % If we are using a mask, create a path to the mask
     if Mask.on == 1
         Model.mask  = fullfile(Mask.dir, Subjects{curSub}, Mask.name);
     end
 
-    % For each run in the model..
+    % Find the SpecModel *.mat files. These should be in the model
+    % directory, defined above
     SpecModelMats   = cellstr(spm_select('List', Model.directory, ['.*' Subjects{curSub} '.*\.mat']));
     
-    if isempty(SpecModelMats)
+    % If we do not find any *.mat files, give an error informing the user
+    % that this has occured
+    if cellfun('isempty', SpecModelMats)
         error('Could not find Specify Model *.mat files') %#ok<*NODEF>
     end
     
-    NumOfRuns          = length(SpecModelMats); % determine number of runs from number of Model Spec .mat files
+    % Determine number of runs from number of Model Spec *.mat files found
+    NumOfRuns          = length(SpecModelMats);
 
     for i = 1:NumOfRuns
         fprintf('Run: %d\n', i)
