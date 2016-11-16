@@ -116,7 +116,8 @@ for curSub = 1:length(Subjects)
     elseif strcmp(jobman_option,'run')
         try
             spm_jobman(jobman_option, matlabbatch)
-        catch error %#ok<*NASGU>
+        catch ER %#ok<*NASGU>
+            disp(ER)
             fprintf('ERROR ON: %s', Subjects{curSub})
         end
     end
