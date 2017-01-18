@@ -8,30 +8,32 @@ function [] = EstimateModel()
 % You should ONLY (!!!!!!) need to edit this highlighted section of the
 % script.
 
-% User Input Step 1: Directories
+% User Input Step 1: Analysis, Funcs, and Masks
 
 % Please specify the name of the current analysis, the directory the
 % current analysis is in, and the directoy which houses the behavioral
 % data.
 
 Analysis.name = 'Name_of_Model_hrf';
-Analysis.dir  = fullfile('/path/to/analyses/directory/analyses', Analysis.name);
+Analysis.dir  = fullfile('/path/to/analyses/directory/', Analysis.name);
 
 Func.dir         = '/path/to/functional/directory';
-Func.wildcard    = '^swa\w*\.nii';
-Func.motwildcard = '^rp_\w*\.txt';
+Func.wildcard    = '^swa.*\.nii';
+Func.motwildcard = '^rp_.*\.txt';
 
 Mask.on   = 0;
 Mask.dir  = 'path\to\mask\directory';
 Mask.name = 'name_of_mask.img';
 
-% User Input Step 2: Subjects
+% User Input Step 2: Subjects and Runs
 
 % Please list the subjects to model in a 1 x N cell array.
 
 Subjects = { 'y001' 'y002' 'y003' 'y004' 'y005' ...
              'o001' 'o002' 'o003' 'o004' 'o005' }';
 
+% Please list the runs for the model in a 1 x N cell array.
+         
 Runs = { 'run1' 'run2' 'run3' 'run4' };
 
 % User Input Step 3: Model Specifics
@@ -67,7 +69,6 @@ spm('Defaults','FMRI')
 spm_jobman('initcfg')
 
 for curSub = 1:length(Subjects)
-    % Set Study Specific Series Numbers
 
     fprintf('\n')
     fprintf('Subject: %s\n\n',Subjects{curSub})
@@ -82,7 +83,7 @@ for curSub = 1:length(Subjects)
 
     % Find the SpecModel *.mat files. These should be in the model
     % directory, defined above
-    SpecModelMats   = cellstr(spm_select('List', Model.directory, ['.*' Subjects{curSub} '.*\.mat']));
+    SpecModelMats   = cellstr(spm_select('List', Model.directory, '.*Run.*\.mat'));
     
     % If we do not find any *.mat files, give an error informing the user
     % that this has occured
@@ -138,10 +139,10 @@ function matlabbatch = setModelparams(Model,show,mask)
     %       .multicond
     %       .motion
 
-    onsets = [];
+    onsets    = [];
     durations = [];
-    names = [];
-    pmod = [];
+    names     = [];
+    pmod      = [];
 
     % Directory
     matlabbatch{1}.spm.stats.fmri_spec.dir = {Model.directory};

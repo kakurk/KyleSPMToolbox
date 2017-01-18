@@ -42,7 +42,7 @@ Subjects       = { 'y001' 'y002' 'y003' 'y004' 'y005' ...
 % - Number of Parametric Modulators
 
 Number.OfTrialTypes           = 4;
-Analysis.behav.regexp         = '_ENCdm.xls';
+Analysis.behav.regexp         = '.*_ENCdm.xls';
 ParametricMods                = 0;
 
 %% Routine
@@ -68,7 +68,7 @@ for indexS = 1:length(Subjects)
     % details
 
     curSubj.name      = Subjects{indexS};
-    curSubj.behavdir  = spm_select('FPListRec', Analysis.behav.directory, 'dir', ['\w*' curSubj.name '\w*']);
+    curSubj.behavdir  = spm_select('FPListRec', Analysis.behav.directory, 'dir', ['.*' curSubj.name '.*']);
     curSubj.behavFile = spm_select('FPListRec', curSubj.behavdir, Analysis.behav.regexp);
 
 
@@ -113,7 +113,7 @@ for indexS = 1:length(Subjects)
         durations = cell(1, Number.OfTrialTypes); % intializing TT durations vector
 
         % Only initialize the pmod structure array if this model
-        % contains a parametric modulator(s)
+        % contains (a) parametric modulator(s)
 
         if ParametricMods > 0
             for indexP = 1:Number.OfTrialTypes
@@ -145,7 +145,7 @@ for indexS = 1:length(Subjects)
                 type        = BehavData.type(curTrial);        % type
                 relatedness = BehavData.relatedness(curTrial); % relatedness para mod
 
-                %--Sort Trials into Trial Types
+                %--Sort Trials into Trial Type Bins
                 
                 % Initalize the Trial Type index, which simply keeps track
                 % of which trial type number we are on
@@ -316,7 +316,7 @@ for indexS = 1:length(Subjects)
         %-- Save the Multiple Conditions *.mat file
         % Save the names, onsets, durations, and pmod variables in a .mat
         % file to be uploaded back into MATLAB/SPM at a later date for
-        % analysis.
+        % model estimation
 
         matfilename = fullfile(curSubj.directory, curSubj.name, ['Run', num2str(curRun), '.mat']);
         fprintf('Saving Subject %s''s Run %d multiple conditions file...\n\n\n', curSubj.name, curRun)
