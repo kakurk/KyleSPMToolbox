@@ -1,8 +1,7 @@
 function matlabbatch = wildcard_parameters12(runs, subjectid, wildcards, directories)
 % wildcard_parameters12     a function for setting SPM preprocessing
 %                           parameters, designed to work with 
-%                           wilcard_preprocess. This pipeline is a custom 
-%                           pipeline designed by me.
+%                           wilcard_preprocess. This is a custom pipeline.
 %                           Kyle Kurkela, kyleakurkela@gmail.com
 %
 %   matlabbatch = wildcard_parameters12(runs, subjectid, wildcard, directories)
@@ -22,7 +21,7 @@ function matlabbatch = wildcard_parameters12(runs, subjectid, wildcards, directo
 %#ok<*AGROW>
 for crun = 1:length(runs) % for each run entered into this function..
     
-    crun_folder  = fullfile(directories.func, subjectid, runs{crun}); % path to the current run folder
+    crun_folder  = runs{crun}; % path to the current run folder
 
     images{crun} = cellstr(spm_select('ExtFPList', crun_folder, wildcards.func, Inf)); % collect paths to ALL .nii images in this folder
         
@@ -33,7 +32,6 @@ for crun = 1:length(runs) % for each run entered into this function..
 end
 
 matlabbatch{1}.spm.spatial.realign.estwrite.data = images; % Paths to all images to realign for this run
-
 
 %% Defining Session Independent Parameters
 % These parameters are run independent

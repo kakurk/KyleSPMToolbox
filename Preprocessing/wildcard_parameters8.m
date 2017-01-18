@@ -15,7 +15,7 @@ function matlabbatch=wildcard_parameters8(runs, subjectid, wildcards, directorie
  
 for crun = 1:length(runs) % for each run entered into this function..
     
-    crun_folder = fullfile(directories.func,subjectid,runs{crun}); % path to the current run folder
+    crun_folder = runs{crun}; % path to the current run folder
     
     images{crun} = cellstr(spm_select('ExtFPList', crun_folder, wildcards.func, Inf)); % collect paths to ALL .nii images in this folder
     
