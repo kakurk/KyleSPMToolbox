@@ -318,10 +318,10 @@ for indexS = 1:length(Subjects)
         % file to be uploaded back into MATLAB/SPM at a later date for
         % model estimation
 
-        matfilename = fullfile(curSubj.directory, curSubj.name, ['Run', num2str(curRun), '.mat']);
+        matfilename = fullfile(curSubj.directory, ['Run', num2str(curRun), '_multiple_conditions.mat']);
         fprintf('Saving Subject %s''s Run %d multiple conditions file...\n\n\n', curSubj.name, curRun)
         pause(3)
-        if exist('ParametricMods','var')
+        if ParametricMods ~= 0
             save(matfilename, 'names', 'onsets', 'durations', 'pmod');
         else
             save(matfilename, 'names', 'onsets', 'durations');
