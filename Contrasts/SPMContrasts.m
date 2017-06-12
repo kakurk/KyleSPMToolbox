@@ -27,6 +27,8 @@ function [] = SPMContrasts()
     % sample t-tests
     
     jobman_option      = 'interactive'; % 'run' or 'interactive'.
+    cons2run           = 'all'; % [1:3 7];
+    deletecons         = 1;     % delete existing contrasts? 1 = yes, 0 = no
 
 %% Setting Analysis specifics contrasts
 
@@ -34,40 +36,34 @@ function [] = SPMContrasts()
     fprintf('Analysis: %s\n\n', Analysis.name)
     disp('Analysis Directory:')
     disp(Analysis.directory)
+            
+    % Inialize Number.OfContrasts to 0
 
-    switch Analysis.name
+    Number.OfContrasts = 0;
 
-        case 'Name_Of_Model_hrf'
-            
-        % Inialize Number.OfContrasts to 0
-            
-            Number.OfContrasts = 0;
+    % AllTrials- Example All Trials versus baseline for a Memory Study
+    Number.OfContrasts = Number.OfContrasts + 1;
+    Contrasts(Number.OfContrasts).names    = { 'AllTrials' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'HighHit' 'LowHit' 'AllMiss' 'AllFA' 'HiCR' 'LoCR' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)
 
-            % AllTrials- Example All Trials versus baseline for a Memory Study
-            Number.OfContrasts = Number.OfContrasts+1;
-            Contrasts(Number.OfContrasts).names    = { 'AllTrials' }; % name of contrast
-            Contrasts(Number.OfContrasts).positive = { 'HighHit' 'LowHit' 'AllMiss' 'AllFA' 'HiCR' 'LoCR' }; % TTs to be included in contrast (+)
-            Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)
-            
-            % HighHit_vs_LowHit- Contrasting Two Conditions in an Example a Memory Study
-            Number.OfContrasts = Number.OfContrasts+1;
-            Contrasts(Number.OfContrasts).names    = { 'HighHit_vs_LowHit' }; % name of contrast
-            Contrasts(Number.OfContrasts).positive = { 'HighHit' }; % TTs to be included in contrast (+)
-            Contrasts(Number.OfContrasts).negative = { 'LowHit' }; % TTs to be included in contrast (-)            
+    % HighHit_vs_LowHit- Contrasting Two Conditions in an Example a Memory Study
+    Number.OfContrasts = Number.OfContrasts + 1;
+    Contrasts(Number.OfContrasts).names    = { 'HighHit_vs_LowHit' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'HighHit' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = { 'LowHit' }; % TTs to be included in contrast (-)            
 
-            % AllFA_parampos- Example with a parametric modulator "Relatedness" using 1st Order Modulation using a positive contast wieght
-            Number.OfContrasts = Number.OfContrasts+1;
-            Contrasts(Number.OfContrasts).names    = { 'AllFA_parampos' }; % name of contrast
-            Contrasts(Number.OfContrasts).positive = { 'AllFAxRelatedness^1' }; % TTs to be included in contrast (+)
-            Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)
-            
-            % AllFA_parampos- Example with a parametric modulator "Relatedness" using 1st Order Modulation using a negative contast wieght
-            Number.OfContrasts = Number.OfContrasts+1;
-            Contrasts(Number.OfContrasts).names    = { 'AllFA_paramneg' }; % name of contrast
-            Contrasts(Number.OfContrasts).positive = {}; % TTs to be included in contrast (+)
-            Contrasts(Number.OfContrasts).negative = { 'AllFAxRelatedness^1' }; % TTs to be included in contrast (-)
-            
-    end
+    % AllFA_parampos- Example with a parametric modulator "Relatedness" using 1st Order Modulation using a positive contast wieght
+    Number.OfContrasts = Number.OfContrasts + 1;
+    Contrasts(Number.OfContrasts).names    = { 'AllFA_parampos' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'AllFAxRelatedness^1' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)
+
+    % AllFA_parampos- Example with a parametric modulator "Relatedness" using 1st Order Modulation using a negative contast wieght
+    Number.OfContrasts = Number.OfContrasts + 1;
+    Contrasts(Number.OfContrasts).names    = { 'AllFA_paramneg' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = {}; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = { 'AllFAxRelatedness^1' }; % TTs to be included in contrast (-)
 
 %% Routine
 % Should not need to be edited
@@ -79,43 +75,50 @@ function [] = SPMContrasts()
     Count.ProblemSubjs = 0;
     
     fprintf('\n')
-    fprintf('Number of Contrasts Specified: %d \n\n',length(Contrasts))
+    fprintf('Number of Contrasts Specified: %d \n\n', length(Contrasts))
     
     for indexS = 1:length(Subjects)
+        
         % Build Contrast Vectors
 
-            pathtoSPM = strcat(Analysis.directory,filesep,Subjects{indexS},filesep,'SPM.mat');
+            pathtoSPM = fullfile(Analysis.directory, Subjects{indexS}, 'SPM.mat');
             fprintf('Building Contrast Vectors...\n\n')
-            Contrasts = BuildContrastVectors(Contrasts,pathtoSPM);
+            Contrasts = BuildContrastVectors(Contrasts, pathtoSPM);
             
         % Run SPM Contrast Manager
+        
             if strcmp(jobman_option,'interactive')
-                fprintf('Displaying SPM Job for Subject %s ...\n\n',Subjects{indexS})
+                fprintf('Displaying SPM Job for Subject %s ...\n\n', Subjects{indexS})
             elseif strcmp(jobman_option,'run')
-                fprintf('Running SPM Job for Subject %s ...\n\n',Subjects{indexS})                
+                fprintf('Running SPM Job for Subject %s ...\n\n', Subjects{indexS})                
             end
-            matlabbatch = SetContrastManagerParams(Contrasts,pathtoSPM,1);
+            matlabbatch = SetContrastManagerParams(Contrasts, pathtoSPM, deletecons, cons2run);
             try
-                spm_jobman(jobman_option,matlabbatch)
-                if strcmp(jobman_option,'interactive')
+                spm_jobman(jobman_option, matlabbatch)
+                if strcmp(jobman_option, 'interactive')
                     pause
                 end
             catch error %#ok<NASGU>
                 display(Subjects{indexS})
-                Count.ProblemSubjs=Count.ProblemSubjs+1;
+                Count.ProblemSubjs = Count.ProblemSubjs + 1;
                 pause
                 problem_subjects{Count.ProblemSubjs} = Subjects{indexS}; %#ok<*AGROW>
             end
+            
         fprintf('\n')
+        
     end
-    if exist('problem_subjects','var')    
+
+    if exist('problem_subjects','var')
+        
         fprintf('There was a problem running the contrasts for these subjects:\n\n')
         disp(problem_subjects)
+        
     end
 
 %% Sub Functions
 
-    function matlabbatch = SetContrastManagerParams(Contrasts,pathtoSPM,delete)
+    function matlabbatch = SetContrastManagerParams(Contrasts, pathtoSPM, delete, cons2run)
         % Function for setting the contrast manager parameters for the SPM job
         % manager. Takes in:
         %
@@ -129,13 +132,21 @@ function [] = SPMContrasts()
         % 
         % delete = 1; 1 = delete existing contrasts, 0 = keep existing contrasts
 
-        matlabbatch{1}.spm.stats.con.spmmat = cellstr(pathtoSPM);
-        for curCon = 1:length(Contrasts)
-            fprintf('Contrast %d: %s\n',curCon,Contrasts(curCon).names{1})
-            matlabbatch{1}.spm.stats.con.consess{curCon}.tcon.name = Contrasts(curCon).names{1};
-            matlabbatch{1}.spm.stats.con.consess{curCon}.tcon.convec = Contrasts(curCon).vector;
+        if strcmp(cons2run,'all')
+            k = 1:length(Contrasts);
+        else
+            k = cons2run;
         end
-        matlabbatch{1}.spm.stats.con.consess{1}.tcon.sessrep = 'none';
+        
+        matlabbatch{1}.spm.stats.con.spmmat = cellstr(pathtoSPM);
+        count = 0;
+        for curCon = k
+            count = count + 1;
+            fprintf('Contrast %d: %s\n', curCon, Contrasts(curCon).names{1})
+            matlabbatch{1}.spm.stats.con.consess{count}.tcon.name    = Contrasts(curCon).names{1};
+            matlabbatch{1}.spm.stats.con.consess{count}.tcon.convec  = Contrasts(curCon).vector;
+            matlabbatch{1}.spm.stats.con.consess{count}.tcon.sessrep = 'none';
+        end
         matlabbatch{1}.spm.stats.con.delete = delete;
 
     end
