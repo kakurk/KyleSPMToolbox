@@ -5,6 +5,16 @@ function [] = SpecifyModel()
 %   This function takes no input. All relevenat variables are defined 
 %   within the body of this function.
 %
+%   Assumes that the behavioral data are organized as follows:
+%
+%   /StudyDir/BehavDir/s001/ConcatenatedBehavioralData.csv
+%   /StudyDir/BehavDir/s002/ConcatenatedBehavioralData.csv
+%   /StudyDir/BehavDir/s003/ConcatenatedBehavioralData.csv
+%
+%   Where ConcatenatedBehavioralData.csv is a comma seperated text file
+%   where all functional runs are concatenated, with a column that
+%   indicates which rows (i.e., trials) belong to which functional run.
+%
 %   See also EstimateModel.m
 
 %% 
@@ -70,7 +80,6 @@ for indexS = 1:length(Subjects)
     curSubj.name      = Subjects{indexS};
     curSubj.behavdir  = spm_select('FPListRec', Analysis.behav.directory, 'dir', ['.*' curSubj.name '.*']);
     curSubj.behavFile = spm_select('FPListRec', curSubj.behavdir, Analysis.behav.regexp);
-
 
     %-- Read in this Subject's Behavioral Data
     % This section of the code reads in the subjects behavioral data using
@@ -318,7 +327,7 @@ for indexS = 1:length(Subjects)
         % file to be uploaded back into MATLAB/SPM at a later date for
         % model estimation
 
-        matfilename = fullfile(curSubj.directory, ['Run', num2str(curRun), '_multiple_conditions.mat']);
+        matfilename = fullfile(curSubj.directory, ['Run', num2str(curRun, '%03d'), '_multiple_conditions.mat']);
         fprintf('Saving Subject %s''s Run %d multiple conditions file...\n\n\n', curSubj.name, curRun)
         pause(3)
         if ParametricMods ~= 0
