@@ -3,6 +3,18 @@ function [] = EstimateModel()
 %                   SpecifyModel. Allows user to display the
 %                   trial type onsets/durations in the SPM Batch GUI
 %
+% Assumes SpecifyModel.m has been run.
+% 
+% Assumes that files are organized as follows:
+%
+%   /StudyDir/AnalysisDir/AnalysisName/s001/Run001_multiple_conditions.mat
+%   /StudyDir/AnalysisDir/AnalysisName/s001/Run002_multiple_conditions.mat
+%   /StudyDir/AnalysisDir/AnalysisName/s001/Run003_multiple_conditions.mat
+%
+%   /StudyDir/AnalysisDir/AnalysisName/s002/Run001_multiple_conditions.mat
+%   /StudyDir/AnalysisDir/AnalysisName/s002/Run002_multiple_conditions.mat
+%   /StudyDir/AnalysisDir/AnalysisName/s002/Run003_multiple_conditions.mat
+%
 % See also:  SpecifyModel
 %% User Input
 % You should ONLY (!!!!!!) need to edit this highlighted section of the
@@ -17,10 +29,18 @@ function [] = EstimateModel()
 Analysis.name = 'Name_of_Model_hrf';
 Analysis.dir  = fullfile('/path/to/analyses/directory/', Analysis.name);
 
+
+% These three variables define the functional data. The directory where it
+% is housed, a regular expression to be used to select the functional data,
+% as well as a regular expression to be used to select the motion
+% parameters.
 Func.dir         = '/path/to/functional/directory';
 Func.wildcard    = '^swa.*\.nii';
 Func.motwildcard = '^rp_.*\.txt';
 
+% These three variables define an explicit mask to be used for the
+% analysis. If you do NOT wish to specify an explicit mask, leave the on
+% variable set to 0.
 Mask.on   = 0;
 Mask.dir  = 'path\to\mask\directory';
 Mask.name = 'name_of_mask.img';
@@ -32,7 +52,8 @@ Mask.name = 'name_of_mask.img';
 Subjects = { 'y001' 'y002' 'y003' 'y004' 'y005' ...
              'o001' 'o002' 'o003' 'o004' 'o005' }';
 
-% Please list the runs for the model in a 1 x N cell array.
+% Please list the runs for the model in a 1 x N cell array. These refer to
+% the labels given to the functional image subdirectories.
          
 Runs = { 'run1' 'run2' 'run3' 'run4' };
 
@@ -41,7 +62,7 @@ Runs = { 'run1' 'run2' 'run3' 'run4' };
 % Each study is different, with a unique TR and a unique onset and
 % duration unit. Please specify:
 % -The units used (i.e., 'scans' or 'secs')
-% -The TR or repition time
+% -The TR or repetition time
 
 Model.units = 'secs';
 Model.TR    = 2;
