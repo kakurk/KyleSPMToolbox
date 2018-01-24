@@ -137,7 +137,7 @@ for v = 1:length(V)
     [R, XYZmm] = spm_read_vols(V{v});
     
     % inclusive mask (i.e., only look at where the image is == 1)
-    XYZmm = XYZmm(:, R == 1);
+    XYZmm = XYZmm(:, find(R));
     
     % convert mm coordinates --> vox coordinates
     XYZ = V{v}.mat\[XYZmm;ones(1,size(XYZmm,2))];
@@ -148,7 +148,7 @@ for v = 1:length(V)
 
     % summarize across voxels (e.g., take the mean across the voxels in 
     % this roi) using the summaryfunction
-    summary_value  = vertcat(summary_value, summaryfunction(extracted_data, 2));
+    summary_value  = vertcat(summary_value, summaryfunction(extracted_data, 2, 'omitnan'));
     
 end
 
@@ -172,6 +172,10 @@ g = gramm('x', formatted_table.con_name,...
 % facet by ROI
 g.facet_grid([], formatted_table.roi_name);
 
+% force drawing of the y axis
+g.geom_hline('yintercept', 0, ...
+             'style', 'k--');
+
 % barplot
 g.stat_summary('type', 'sem', ...
                'geom', 'bar',...
@@ -181,6 +185,9 @@ g.stat_summary('type', 'sem', ...
 g.stat_summary('type', 'sem', ...
                'geom', 'black_errorbar',...
                'setylim', true);
+           
+% rotate x axis labels 45 degrees
+g.axe_property('XTickLabelRotation', 45)
 
 % custom color map
 g.set_color_options('map', [1 0 0;1 1 0;0 1 0;0 1 1;0 0 1;1 0 1]);
