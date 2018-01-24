@@ -26,9 +26,10 @@ function [] = SPMContrasts()
     % SPM parameters in the GUI and go directly to running of the one
     % sample t-tests
     
-    jobman_option      = 'interactive'; % 'run' or 'interactive'.
-    cons2run           = 'all'; % [1:3 7];
-    deletecons         = 1;     % delete existing contrasts? 1 = yes, 0 = no
+    jobman_option       = 'interactive'; % 'run' or 'interactive'.
+    cons2run            = 'all'; % [1:3 7];
+    deletecons          = 1;     % delete existing contrasts? 1 = yes, 0 = no
+    allparamsvsbaseline = false; % automatically create all parameters vs baseline contrasts?
 
 %% Setting Analysis specifics contrasts
 
@@ -83,7 +84,11 @@ function [] = SPMContrasts()
 
             pathtoSPM = fullfile(Analysis.directory, Subjects{indexS}, 'SPM.mat');
             fprintf('Building Contrast Vectors...\n\n')
-            Contrasts = BuildContrastVectors(Contrasts, pathtoSPM);
+            if allparamsvsbaseline
+                Contrasts = AllParamsVsBaseline(pathtoSPM); %#ok<UNRCH>
+            else
+                Contrasts = BuildContrastVectors(Contrasts, pathtoSPM);
+            end
             
         % Run SPM Contrast Manager
         
@@ -151,4 +156,31 @@ function [] = SPMContrasts()
 
     end
 
+    function Contrasts = AllParamsVsBaseline(path2spm)
+        
+        SPM = [];
+        load(path2spm)
+        
+        % extract **unique** parameter names from all of the sessions
+        names = cell(1, length(SPM.Sess));
+        for s = 1:length(SPM.Sess)
+            names{s} = {SPM.Sess(s).Fc.name}; % all parameters names
+        end
+        names = unique(horzcat(names{:})); % only unique ones
+        
+        % create a "_vs_baseline" contrast for every parameter
+        % Note: skips parametric modulators
+        Contrasts(length(names)).vector = [];
+        Contrasts(length(names)).names  = {};
+        for n = 1:length(names)
+            Contrasts(n).names  = names{n};
+            Contrasts(n).vector = double(regexpl(SPM.xX.name, [names{n} '\*']));
+        end
+        
+        function filt = regexpl(cellstring, expression)
+            % regular expression logical, a function MATLAB base should have
+            filt = ~cellfun(@isempty, regexp(cellstring, expression));
+        end
+        
+    end
 end
