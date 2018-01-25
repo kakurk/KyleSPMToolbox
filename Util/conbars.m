@@ -125,11 +125,11 @@ for v = 1:length(V)
     
     %%% overlay ROI
     
-    % red, yellow, green, cyan, blue, purple
-    colormap = [1 0 0;1 1 0;0 1 0;0 1 1;0 0 1;1 0 1];
+    % use MATLAB's predefined hsv colormap
+    colors = hsv(length(V));
     
     % overlay
-    spm_orthviews('AddColouredImage', 1, V{v}.fname, colormap(v,:));
+    spm_orthviews('AddColouredImage', 1, V{v}.fname, colors(v,:));
     spm_orthviews('AddContext',1);
     spm_orthviews('Redraw');
     
@@ -190,7 +190,7 @@ g.stat_summary('type', 'sem', ...
 g.axe_property('XTickLabelRotation', 45)
 
 % custom color map
-g.set_color_options('map', [1 0 0;1 1 0;0 1 0;0 1 1;0 0 1;1 0 1]);
+g.set_color_options('map', colors);
 
 % labels
 g.set_names('x','Contrast', 'y', 'Summary Value', 'color', 'ROI', 'column', 'ROI');
