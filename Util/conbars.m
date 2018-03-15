@@ -96,6 +96,11 @@ end
 [~, roi_name, ~] = cellfun(@fileparts, rois, 'UniformOutput', false);
 roi_name         = repelem(roi_name, length(con_file));
 
+% if roi_name is a long vector, transpose it.
+if size(roi_name, 1) == 1
+    roi_name = roi_name';
+end
+
 % repeat con_file, con_name, and subject_id for each ROI
 con_file         = repmat(con_file, length(V), 1);
 con_name         = repmat(con_name, length(V), 1);
