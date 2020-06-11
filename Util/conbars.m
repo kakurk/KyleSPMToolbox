@@ -83,7 +83,7 @@ for s = 1:length(subjects)
         i = i + 1;
         con_file{i, 1}           = fullfile(SPM.swd, cons_for_this_subject(c).Vcon.fname); %#ok<*AGROW>
         con_name{i, 1}           = cons_for_this_subject(c).name;
-        [~, subject_id{i, 1}, ~] = fileparts(fileparts(subjects{s}));
+        [~, subject_id{i, 1}, ~] = fileparts(fileparts(fileparts(subjects{s})));
 
     end
 
