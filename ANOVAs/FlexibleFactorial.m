@@ -1,6 +1,45 @@
 function FlexibleFactorial()
 % Function for running a flexible factorial ANOVA in SPM.
 % Written by Kyle Kurkela, kyleakurkela@gmail.com
+%
+% This script assumes the following example directory structure for the
+% first level models:
+%
+%   /Path/To/Analysis/Directory/NameOfModel/o001/SPM.mat
+%   /Path/To/Analysis/Directory/NameOfModel/o002/SPM.mat
+%   ...
+%   /Path/To/Analysis/Directory/NameOfModel/y001/SPM.mat
+%   /Path/To/Analysis/Directory/NameOfModel/y002/SPM.mat
+%   ...
+%   /Path/To/Analysis/Directory/NameOfModel/y009/SPM.mat
+%   /Path/To/Analysis/Directory/NameOfModel/y010/SPM.mat
+%
+% where subjects appended with "o" are from between subjects group 1 and
+% "y" are from between subjects group 2. In this example, o = older adult, 
+% y = younger adult.
+%
+% the script also assumes that any within subject factor is represented by
+% the contrast images contained within the individual subjects' first level
+% models. For example:
+%
+%   Within Subjects Factor 1: Difference in Memory (DM)
+%
+%       Level 1: Subsequent High Confidence Hit (HDm)
+%       Level 2: Subsequent Low Confidence Hit (LDm)
+%       Level 3: Subsequent Miss (Miss)
+%
+% would be operationalized as:
+%   
+%       Subject 1 Group 1 HDm:
+%           /Path/To/Analysis/Directory/NameOfModel/o001/con_0001.nii
+%       Subject 1 Group 1 LDm:
+%           /Path/To/Analysis/Directory/NameOfModel/o001/con_0002.nii
+%       Subject 1 Group 1 Miss:
+%           /Path/To/Analysis/Directory/NameOfModel/o001/con_0003.nii
+%
+% The script creates an output directory here:
+%
+%   /Path/To/Analysis/Directory/NameOfModel/ANOVA
 
 %% Initalize Counter Variables 
 
@@ -78,7 +117,7 @@ function FlexibleFactorial()
             ANOVA.factors(Number.OfFacts).dep      = 1;
             ANOVA.factors(Number.OfFacts).variance = 1;
 
-             % Corresponding Contrasts
+            % Corresponding Contrasts
 
             Number.OfContrasts = Number.OfContrasts + 1;
             Contrasts(Number.OfContrasts).name      = 'HDm_inc';
@@ -114,16 +153,16 @@ function FlexibleFactorial()
 
 %% Specify Effects to Model
 
-    % Main Effect of Subjects
+    % Main Effect of Age Group: Voxels where younger and older adults
+    % differ, collapsing across within subjects condition.
     Number.OfEffects = Number.OfEffects + 1;
     ANOVA.effects(Number.OfEffects).type = 'fmain';
-    ANOVA.effects(Number.OfEffects).vec  = 1;
+    ANOVA.effects(Number.OfEffects).vec  = 2;
 
-    % Two Way Interaction of Age Group and Encoding Condition
+    % Two Way Interaction of Age Group and Encoding Condition (Int/Inc)
     Number.OfEffects = Number.OfEffects + 1;
     ANOVA.effects(Number.OfEffects).type = 'inter';
-    ANOVA.effects(Number.OfEffects).vec  = [2 
-                                            3];
+    ANOVA.effects(Number.OfEffects).vec  = [2 3];
                                    
 %% Routine                                   
 
